@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" width="600" height="144" role="img" aria-labelledby="t"><title id="t">FALA, VASCÃO! — logotipo horizontal monocromático (usa a cor do texto ao redor)</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&amp;family=Barlow:wght@600&amp;display=swap');.w{font-family:'Big Shoulders Display',Impact,'Arial Narrow Bold',sans-serif;font-weight:900}.t{font-family:Barlow,'Segoe UI',sans-serif;font-weight:600}</style>
+<defs><mask id="fv-m"><rect width="64" height="64" fill="#fff"/><path d="M0 43L64 8V21L0 56Z" fill="#000"/><path transform="translate(9 6) scale(.19)" d="M50 50L36 4Q50 10 64 4ZM50 50L96 36Q90 50 96 64ZM50 50L64 96Q50 90 36 96ZM50 50L4 64Q10 50 4 36Z" fill="#000"/></mask></defs>
+<g transform="translate(0 4)"><path mask="url(#fv-m)" d="M14 4h36a10 10 0 0 1 10 10v26a10 10 0 0 1-10 10H30L16 60V50h-2A10 10 0 0 1 4 40V14A10 10 0 0 1 14 4z" fill="currentColor"/></g>
+<text class="w" x="78" y="31" font-size="29" letter-spacing=".5" fill="currentColor">FALA,</text>
+<text class="w" x="77" y="58" font-size="31" letter-spacing=".5" fill="currentColor">VASCÃO!</text>
+<text class="t" x="79" y="70" font-size="8.5" letter-spacing="1.6" fill="currentColor" opacity=".7">A CASA DIGITAL DO VASCAÍNO</text>
+</svg>

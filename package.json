@@ -4,7 +4,7 @@
   "private": true,
   "description": "FALA, VASCÃO! — A casa digital do vascaíno",
   "scripts": {
-    "test": "node tests/smoke.js && node tests/skins.js && node tests/cloud.js"
+    "test": "node tests/smoke.js && node tests/skins.js && node tests/cloud.js && node tests/theme.js"
   },
   "devDependencies": {
     "jsdom": "^24.0.0"

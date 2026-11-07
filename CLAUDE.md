@@ -19,6 +19,17 @@ explique em linguagem simples e peça confirmação antes de mudanças grandes.
 - `localStorage` (chave `falavascao:db`) segue como cache offline; no modo local o login é DEMONSTRATIVO.
 - Gestões salvas do modo gestor ainda ficam só no navegador (tabela `manager_teams` já existe, falta ligar).
 - 4 visuais (skins) via `data-skin` no `<html>`: classico, app, game, editorial. Tema claro/escuro via `data-theme`.
+- **Identidade v2 (rebranding em andamento)**: guia da marca em `marca/index.html` (logo, paleta, tipografia,
+  3 direções A/B/C). Símbolo = balão de fala + faixa diagonal + cruz pátea pequena (nunca o escudo oficial);
+  no site é o `<symbol id="fv-sym">` com cores por variáveis `--lb/--ls/--lc`. Paleta: #090909/#121212/#1B1B1B/
+  #303030/#B8B8B8/#F5F5F5 e vermelho #C8102E só em detalhes (≈2% da tela). Modo noite (padrão) = camisa 1,
+  modo dia = camisa 2. Módulo `Theme` + botão sol/lua (`#themeBtn`), preferência em `falavascao:theme`.
+  **Direção escolhida: A · Vasco Clássico** (padrão), aplicada pela camada CSS "IDENTIDADE v2 · DIREÇÃO A".
+  Regras visuais: `.kicker` cinza em caixa alta; `h2.sec` com linha fina + marcador vermelho; `.btn.red` =
+  ação principal em preto/branco invertido; vermelho de verdade só em `.btn.red.danger` (UI.confirm danger),
+  contagem regressiva, item selecionado do menu, marca e alertas. Visuais opcionais: B (`app`), C (`editorial`)
+  e Videogame (`game`), todos sem neon/gradiente vermelho. Imagem de compartilhamento: `marca/compartilhamento.png`.
+  Ponto de restauração: tag git `v1.2-antes-da-nova-marca`.
 - Dados atuais: snapshot de 06/11/2026 (Netvasco). Hospedagem planejada: GitHub Pages.
 
 ## Arquitetura do JS (módulos no mesmo arquivo)

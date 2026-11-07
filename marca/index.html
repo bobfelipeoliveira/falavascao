@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>Marca Fala, Vascão!</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Barlow:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* Tokens da nova identidade — os mesmos do site */
+:root{--bg:#090909;--s1:#121212;--s2:#1B1B1B;--line:#303030;--muted:#B8B8B8;--text:#F5F5F5;--strong:#FFFFFF;--accent:#C8102E;--accent-t:#E8455C;
+  --display:'Big Shoulders Display',Impact,'Arial Narrow Bold',sans-serif;--body:'Barlow',system-ui,'Segoe UI',sans-serif;--serif:'Source Serif 4',Georgia,serif;color-scheme:dark}
+[data-theme="light"]{--bg:#F4F4F2;--s1:#FFFFFF;--s2:#ECECEA;--line:#D9D9D6;--muted:#555555;--text:#0B0B0B;--strong:#000000;--accent:#C8102E;--accent-t:#A60D26;color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:16px;height:64px}
+header.top nav{display:flex;gap:18px;flex:1;overflow-x:auto;scrollbar-width:none;font-weight:600;font-size:14px;color:var(--muted)}
+header.top nav a{text-decoration:none;white-space:nowrap}header.top nav a:hover{color:var(--text)}
+.theme{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--s1);cursor:pointer;flex:none}
+.theme span{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--muted)}
+.theme svg{width:17px;height:17px}
+:root:not([data-theme="light"]) .theme .moon,[data-theme="light"] .theme .sun{background:var(--text);color:var(--bg)}
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";width:18px;height:2px;background:var(--accent)}
+h1,h2,h3{font-family:var(--display);font-weight:900;line-height:.95;letter-spacing:.3px}
+h1{font-size:clamp(56px,10vw,128px)}
+h2{font-size:clamp(36px,5vw,56px);margin-bottom:14px}
+h3{font-size:24px;font-weight:800;margin-bottom:6px}
+p.lead{color:var(--muted);font-size:18px;max-width:64ch}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:20px;min-width:0}
+.muted{color:var(--muted)}.small{font-size:13px}
+/* logo */
+.logo{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+section,.hero{scroll-margin-top:64px}
+.logo .wm{font-family:var(--display);font-weight:900;line-height:.94;letter-spacing:.4px;font-size:26px}
+.logo .wm i{font-style:normal;color:var(--accent)}
+.logo .tg{display:block;font-family:var(--body);font-weight:600;font-size:9px;letter-spacing:.16em;color:var(--muted);margin-top:4px}
+.sym{--lb:var(--text);--ls:var(--bg);--lc:var(--accent)}
+.on-dark{--text:#F5F5F5;--bg:#090909;--muted:#B8B8B8;background:#090909;color:#F5F5F5}
+.on-light{--text:#090909;--bg:#F4F4F2;--muted:#555;background:#F4F4F2;color:#090909}
+.tile{border-radius:10px;border:1px solid var(--line);padding:28px;display:grid;place-items:center;min-height:170px;position:relative}
+.tile .cap{position:absolute;left:12px;bottom:10px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.mono{color:inherit}
+/* hero da página */
+.hero{position:relative;overflow:hidden;padding:72px 0 64px;border-bottom:1px solid var(--line);isolation:isolate}
+.hero::before{content:"";position:absolute;z-index:-1;left:-10%;right:-10%;top:52%;height:72px;background:var(--text);transform:rotate(-14deg);opacity:.95}
+.hero h1 span{background:var(--bg);padding:0 10px;margin-left:-10px;display:inline-block}
+.hero p{background:var(--bg);display:inline-block;padding:4px 10px 4px 0;margin-top:10px}
+/* paleta */
+.sw{border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--s1)}
+.sw .c{height:92px}
+.sw .t{padding:10px 12px;font-size:13px}
+.sw b{display:block;font-size:14px}
+.sw code{font-size:12px;color:var(--muted)}
+.bar{display:flex;height:28px;border-radius:999px;overflow:hidden;border:1px solid var(--line);margin-top:18px}
+/* tipografia */
+.type-a{font-family:var(--display);font-weight:900;font-size:clamp(64px,9vw,112px);line-height:.85}
+.type-b{font-family:var(--body);font-size:20px;max-width:46ch}
+.nums{font-family:var(--display);font-weight:900;font-size:64px;line-height:1;font-variant-numeric:tabular-nums}
+/* elementos */
+.el{height:150px;border-radius:10px;border:1px solid var(--line);background:var(--s1);position:relative;overflow:hidden}
+.el .s{position:absolute;left:-20%;right:-20%;top:46%;height:26px;background:var(--text);transform:rotate(-14deg)}
+.el .lbl{position:absolute;left:12px;bottom:10px;font-size:12px;font-weight:600;color:var(--muted);background:var(--s1);padding:2px 6px}
+.ruler{position:absolute;left:16px;right:16px;top:50%;height:1px;background:var(--line)}
+.ruler::before{content:"";position:absolute;left:0;top:-2px;width:48px;height:5px;background:var(--accent)}
+/* direções */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0}
+.tabs button{font:inherit;font-weight:700;font-size:14px;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--s1);color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg)}
+.frame .chrome{display:flex;align-items:center;gap:6px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--s1);font-size:12px;color:var(--muted)}
+.frame .chrome i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+.frame .chrome span{margin-left:8px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:2px 12px;flex:1;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dir{display:none}.dir.on{display:block}
+.pros{margin-top:16px}
+.pros li{margin:0 0 6px 18px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.badge.rec{border-color:var(--accent);color:var(--accent-t)}
+/* ---- Mockup A: Vasco Clássico ---- */
+.mk-a{display:grid;grid-template-columns:200px 1fr;min-height:520px}
+.mk-a aside{border-right:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;gap:4px}
+.mk-a aside .it{padding:8px 10px;border-radius:6px;font-weight:600;font-size:14px;color:var(--muted)}
+.mk-a aside .it.on{color:var(--text);background:var(--s2);box-shadow:inset 2px 0 0 var(--accent)}
+.mk-a main{padding:26px 30px}
+.mk-a .hero-a{position:relative;overflow:hidden;border-bottom:1px solid var(--line);padding:34px 0 30px;isolation:isolate;margin-bottom:22px}
+.mk-a .hero-a::before{content:"";position:absolute;z-index:-1;left:-10%;right:-10%;top:48%;height:46px;background:var(--text);transform:rotate(-12deg)}
+.mk-a .hero-a h4{font-family:var(--display);font-weight:900;font-size:clamp(48px,7vw,84px);line-height:.85}
+.mk-a .hero-a h4 span{background:var(--bg);padding:0 8px;margin-left:-8px;display:inline-block}
+.mk-a .hero-a p{background:var(--bg);display:inline-block;padding:4px 8px 4px 0;color:var(--muted);margin-top:8px;font-size:15px}
+.mk-a .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.mk-a .k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mk-a .v{font-family:var(--display);font-weight:900;font-size:42px;line-height:1}
+.mk-a .blk{border-top:2px solid var(--text);padding-top:10px}
+.mk-a .since{font-family:var(--display);font-weight:900;font-size:13px;letter-spacing:.2em;color:var(--muted);margin-top:24px}
+/* ---- Mockup B: Central Digital ---- */
+.mk-b{min-height:520px}
+.mk-b .tb{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--s1)}
+.mk-b .tb .nav{display:flex;gap:4px;flex:1;overflow:hidden}
+.mk-b .tb .nav span{font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;color:var(--muted);white-space:nowrap}
+.mk-b .tb .nav span.on{background:var(--text);color:var(--bg)}
+.mk-b .body{padding:18px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.mk-b .c{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.mk-b .c .k{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.mk-b .live{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.mk-b .match{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}
+.mk-b .team{display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;font-size:14px}
+.mk-b .crest{width:42px;height:42px;border-radius:50%;background:var(--s2);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-weight:900}
+.mk-b .cd{font-family:var(--display);font-weight:900;font-size:30px;font-variant-numeric:tabular-nums}
+.mk-b .big{font-family:var(--display);font-weight:900;font-size:44px;line-height:1;margin-top:6px}
+.mk-b .wdl{display:flex;height:8px;border-radius:99px;overflow:hidden;margin:10px 0 6px;background:var(--s2)}
+.mk-b .news{grid-column:1/3}
+.mk-b .ni{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.mk-b .ni:first-of-type{border-top:0}
+.mk-b .ni .th{width:72px;height:48px;border-radius:8px;background:var(--s2);flex:none;position:relative;overflow:hidden}
+.mk-b .ni .th::after{content:"";position:absolute;left:-20%;right:-20%;top:40%;height:8px;background:var(--line);transform:rotate(-14deg)}
+.mk-b .games{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.mk-b .games span{background:var(--s2);border-radius:10px;padding:10px;font-size:12px;font-weight:700}
+/* ---- Mockup C: Portal Editorial ---- */
+.mk-c{min-height:520px}
+.mk-c .mast{text-align:center;padding:18px 18px 10px;border-bottom:1px solid var(--line)}
+.mk-c .mast .date{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.mk-c .navc{display:flex;justify-content:center;gap:20px;padding:10px;border-bottom:3px solid var(--text);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;overflow:hidden;white-space:nowrap}
+.mk-c .body{display:grid;grid-template-columns:2fr 1fr;gap:24px;padding:22px}
+.mk-c .img{aspect-ratio:16/8;background:var(--s2);position:relative;overflow:hidden;margin-bottom:12px}
+.mk-c .img::after{content:"";position:absolute;left:-20%;right:-20%;top:42%;height:34px;background:var(--line);transform:rotate(-14deg)}
+.mk-c .kick{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-t)}
+.mk-c .lead-h{font-family:var(--serif);font-weight:700;font-size:clamp(24px,3.2vw,36px);line-height:1.12;margin:6px 0}
+.mk-c .sub{font-family:var(--serif);color:var(--muted);font-size:16px}
+.mk-c .side-h{border-top:1px solid var(--line);padding:12px 0}
+.mk-c .side-h:first-child{border-top:0;padding-top:0}
+.mk-c .side-h b{font-family:var(--serif);font-size:18px;line-height:1.2;display:block;margin-top:4px}
+.mk-c .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:0 22px 22px}
+.mk-c .strip div{border-top:1px solid var(--line);padding-top:10px;font-family:var(--serif);font-weight:700}
+@media (max-width:760px){
+  .mk-a{grid-template-columns:1fr}.mk-a aside{display:none}.mk-a main{padding:18px}.mk-a .row3{grid-template-columns:1fr}
+  .mk-b .body{grid-template-columns:1fr}.mk-b .news{grid-column:auto}
+  .mk-c .body{grid-template-columns:1fr}.mk-c .strip{grid-template-columns:1fr}.mk-c .navc{justify-content:flex-start}
+}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:700}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+footer{padding:40px 0 60px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="fvb"><path d="M14 4h36a10 10 0 0 1 10 10v26a10 10 0 0 1-10 10H30L16 60V50h-2A10 10 0 0 1 4 40V14A10 10 0 0 1 14 4z"/></clipPath>
+    <mask id="fvm"><rect width="64" height="64" fill="#fff"/><path d="M0 43L64 8V21L0 56Z" fill="#000"/><path transform="translate(9 6) scale(.19)" d="M50 50L36 4Q50 10 64 4ZM50 50L96 36Q90 50 96 64ZM50 50L64 96Q50 90 36 96ZM50 50L4 64Q10 50 4 36Z" fill="#000"/></mask>
+    <symbol id="sym" viewBox="0 0 64 64"><path style="fill:var(--lb)" d="M14 4h36a10 10 0 0 1 10 10v26a10 10 0 0 1-10 10H30L16 60V50h-2A10 10 0 0 1 4 40V14A10 10 0 0 1 14 4z"/><path style="fill:var(--ls)" clip-path="url(#fvb)" d="M0 43L64 8V21L0 56Z"/><path style="fill:var(--lc)" transform="translate(9 6) scale(.19)" d="M50 50L36 4Q50 10 64 4ZM50 50L96 36Q90 50 96 64ZM50 50L64 96Q50 90 36 96ZM50 50L4 64Q10 50 4 36Z"/></symbol>
+    <symbol id="symMono" viewBox="0 0 64 64"><path mask="url(#fvm)" fill="currentColor" d="M14 4h36a10 10 0 0 1 10 10v26a10 10 0 0 1-10 10H30L16 60V50h-2A10 10 0 0 1 4 40V14A10 10 0 0 1 14 4z"/></symbol>
+  </defs>
+</svg>
+
+<header class="top"><div class="wrap">
+  <a class="logo" href="#topo" aria-label="Fala, Vascão!"><svg class="sym" width="34" height="34"><use href="#sym"/></svg><span class="wm">FALA,<br>VASCÃO<i>!</i></span></a>
+  <nav aria-label="Seções"><a href="#conceito">Conceito</a><a href="#logo">Logotipo</a><a href="#cores">Cores</a><a href="#tipo">Tipografia</a><a href="#elementos">Elementos</a><a href="#direcoes">Direções de layout</a><a href="#comparar">Comparativo</a></nav>
+  <button class="theme" id="themeBtn" type="button" aria-label="Alternar modo dia e noite" title="Modo dia / noite">
+    <span class="sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
+    <span class="moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span>
+  </button>
+</div></header>
+
+<div class="hero" id="topo"><div class="wrap">
+  <div class="eyebrow">Identidade visual · proposta 1</div>
+  <h1><span>FALA,</span><br><span>VASCÃO!</span></h1>
+  <p class="lead">Menos vermelho. Mais Vasco. Mais identidade.</p>
+</div></div>
+
+<section id="conceito"><div class="wrap">
+  <div class="eyebrow">Etapa 1 · Conceito</div>
+  <h2>Vasco clássico + plataforma digital</h2>
+  <p class="lead">A marca junta três ideias. Nenhuma delas copia o escudo oficial do clube.</p>
+  <div class="grid g3" style="margin-top:22px">
+    <div class="card"><h3>A voz da torcida</h3><p class="muted">O símbolo é um <b>balão de fala</b>. É o “Fala” do nome: o lugar onde o vascaíno conversa, opina e participa. Isso traz a comunidade e o pertencimento.</p></div>
+    <div class="card"><h3>A faixa da camisa</h3><p class="muted">A <b>faixa diagonal</b> cruza o balão como cruza a camisa desde sempre. É o traço mais reconhecível do Vasco, e funciona até sem nenhuma cor.</p></div>
+    <div class="card"><h3>A cruz como detalhe</h3><p class="muted">Uma <b>cruz pátea</b> pequena, em vermelho, no canto. É o único vermelho da marca: aparece pouco e por isso chama atenção.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Noite = camisa 1. Dia = camisa 2.</h3><p class="muted">O <b>modo noite</b> é a camisa preta com a faixa branca. O <b>modo dia</b> é a camisa branca com a faixa preta. Os dois são o mesmo Vasco, e é por isso que o modo claro não parece outro site. Use o botão de sol e lua no topo para ver.</p></div>
+</div></section>
+
+<section id="logo"><div class="wrap">
+  <div class="eyebrow">Etapa 1 · Logotipo</div>
+  <h2>Logotipo e versões</h2>
+  <p class="lead">Símbolo próprio, desenhado em SVG: fica nítido em qualquer tamanho, do ícone da aba ao telão.</p>
+  <div class="grid g2" style="margin-top:22px">
+    <div class="tile on-dark"><a class="logo" style="color:inherit"><svg class="sym" width="72" height="72"><use href="#sym"/></svg><span><span class="wm" style="font-size:52px">FALA,<br>VASCÃO<i>!</i></span><span class="tg" style="font-size:12px">A CASA DIGITAL DO VASCAÍNO</span></span></a><span class="cap">Horizontal · fundo escuro</span></div>
+    <div class="tile on-light"><a class="logo" style="color:inherit"><svg class="sym" width="72" height="72"><use href="#sym"/></svg><span><span class="wm" style="font-size:52px">FALA,<br>VASCÃO<i>!</i></span><span class="tg" style="font-size:12px">A CASA DIGITAL DO VASCAÍNO</span></span></a><span class="cap">Horizontal · fundo claro</span></div>
+  </div>
+  <div class="grid g4" style="margin-top:16px">
+    <div class="tile on-dark"><svg class="sym" width="96" height="96"><use href="#sym"/></svg><span class="cap">Compacto · escuro</span></div>
+    <div class="tile on-light"><svg class="sym" width="96" height="96"><use href="#sym"/></svg><span class="cap">Compacto · claro</span></div>
+    <div class="tile on-light" style="color:#090909"><span class="logo" style="color:inherit"><svg width="56" height="56"><use href="#symMono"/></svg><span class="wm" style="font-size:34px">FALA,<br>VASCÃO!</span></span><span class="cap">Monocromático · preto</span></div>
+    <div class="tile on-dark" style="color:#fff"><span class="logo" style="color:inherit"><svg width="56" height="56"><use href="#symMono"/></svg><span class="wm" style="font-size:34px">FALA,<br>VASCÃO!</span></span><span class="cap">Monocromático · branco</span></div>
+  </div>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="tile" style="background:#DEE1E6"><div style="display:flex;align-items:center;gap:14px"><img src="favicon.svg" width="16" height="16" alt=""><img src="favicon.svg" width="32" height="32" alt=""><img src="favicon.svg" width="48" height="48" alt=""></div><span class="cap" style="color:#333">Ícone do navegador (aba clara)</span></div>
+    <div class="tile" style="background:#202124"><div style="display:flex;align-items:center;gap:14px"><img src="favicon.svg" width="16" height="16" alt=""><img src="favicon.svg" width="32" height="32" alt=""><img src="favicon.svg" width="48" height="48" alt=""></div><span class="cap" style="color:#ccc">Ícone do navegador (aba escura)</span></div>
+    <div class="tile on-dark" style="padding:0;overflow:hidden;min-height:170px"><div style="position:absolute;left:-20%;right:-20%;top:56%;height:30px;background:#F5F5F5;transform:rotate(-14deg)"></div><a class="logo" style="color:inherit;position:relative;background:#090909;padding:6px 10px"><svg class="sym" width="44" height="44"><use href="#sym"/></svg><span class="wm" style="font-size:30px">FALA,<br>VASCÃO<i>!</i></span></a><span class="cap">Compartilhamento / redes sociais</span></div>
+  </div>
+  <p class="small muted" style="margin-top:14px">Arquivos prontos nesta pasta: <code>simbolo-fundo-escuro.svg</code>, <code>simbolo-fundo-claro.svg</code>, <code>simbolo-monocromatico.svg</code>, <code>logo-horizontal-*.svg</code> e <code>favicon.svg</code>. Área de respiro mínima: metade da altura do símbolo, em volta de todo o logo. Tamanho mínimo: 16 px (só o símbolo) e 120 px de largura (horizontal).</p>
+</div></section>
+
+<section id="cores"><div class="wrap">
+  <div class="eyebrow">Etapa 1 · Paleta</div>
+  <h2>Preto, branco e cinzas. Vermelho na medida.</h2>
+  <p class="lead">A tela deve ser reconhecível como Vasco mesmo sem vermelho. Ele fica para alertas, itens selecionados, detalhes da marca e a ação mais importante da tela.</p>
+  <div class="grid g4" style="margin-top:22px">
+    <div class="sw"><div class="c" style="background:#090909"></div><div class="t"><b>Preto profundo</b><code>#090909</code><br>Fundo (noite)</div></div>
+    <div class="sw"><div class="c" style="background:#121212"></div><div class="t"><b>Preto secundário</b><code>#121212</code><br>Navegação, destaques</div></div>
+    <div class="sw"><div class="c" style="background:#1B1B1B"></div><div class="t"><b>Cinza carvão</b><code>#1B1B1B</code><br>Cards e superfícies</div></div>
+    <div class="sw"><div class="c" style="background:#303030"></div><div class="t"><b>Cinza intermediário</b><code>#303030</code><br>Bordas e divisórias</div></div>
+    <div class="sw"><div class="c" style="background:#B8B8B8"></div><div class="t"><b>Cinza claro</b><code>#B8B8B8</code><br>Texto secundário (noite)</div></div>
+    <div class="sw"><div class="c" style="background:#F5F5F5"></div><div class="t"><b>Branco</b><code>#F5F5F5</code><br>Texto principal (noite)</div></div>
+    <div class="sw"><div class="c" style="background:#C8102E"></div><div class="t"><b>Vermelho vascaíno</b><code>#C8102E</code><br>Destaques pontuais</div></div>
+    <div class="sw"><div class="c" style="background:linear-gradient(90deg,#E8455C 50%,#A60D26 50%)"></div><div class="t"><b>Vermelho para textos</b><code>#E8455C · #A60D26</code><br>Versão mais clara no escuro e mais escura no claro, para manter a leitura</div></div>
+  </div>
+  <p class="small muted" style="margin-top:14px">Proporção de uso na tela:</p>
+  <div class="bar" role="img" aria-label="Proporção: 60% preto, 25% cinzas, 13% branco, 2% vermelho"><span style="flex:60;background:#090909"></span><span style="flex:25;background:#303030"></span><span style="flex:13;background:#F5F5F5"></span><span style="flex:2;background:#C8102E"></span></div>
+  <p class="small muted" style="margin-top:8px">60% preto · 25% cinzas · 13% branco · <b>2% vermelho</b>. Contraste verificado: texto principal 18:1, texto secundário 10:1 (noite) e 6,8:1 (dia), vermelho de texto 5,2:1 (noite) e 7:1 (dia). Todos acima do mínimo de acessibilidade (WCAG AA = 4,5:1).</p>
+</div></section>
+
+<section id="tipo"><div class="wrap">
+  <div class="eyebrow">Etapa 1 · Tipografia</div>
+  <h2>Letra de arquibancada, texto de leitura fácil</h2>
+  <div class="grid g2" style="margin-top:22px">
+    <div class="card"><div class="small muted">Títulos, números e marca · Big Shoulders Display 900</div><div class="type-a">COLINA<br>HISTÓRICA</div><p class="small muted" style="margin-top:10px">Condensada e forte, lembra placar e faixa de estádio. Só em caixa alta nos títulos de abertura.</p></div>
+    <div class="card"><div class="small muted">Textos, menus e formulários · Barlow 400 / 600 / 700</div><p class="type-b" style="margin-top:10px">O Club de Regatas Vasco da Gama nasceu em 21 de agosto de 1898. A Barlow tem desenho técnico e moderno e continua legível no celular, em tabelas e em formulários.</p><div class="nums" style="margin-top:16px">13º · 25V 18E 20D</div><p class="small muted">Números com largura fixa, para placares e tabelas alinharem.</p></div>
+  </div>
+</div></section>
+
+<section id="elementos"><div class="wrap">
+  <div class="eyebrow">Etapa 1 · Elementos gráficos</div>
+  <h2>Poucos elementos, sempre os mesmos</h2>
+  <div class="grid g4" style="margin-top:22px">
+    <div class="el"><div class="s"></div><span class="lbl">Faixa diagonal (−14°)</span></div>
+    <div class="el" style="display:grid;place-items:center"><svg width="60" height="60" viewBox="0 0 100 100"><path d="M50 50L36 4Q50 10 64 4ZM50 50L96 36Q90 50 96 64ZM50 50L64 96Q50 90 36 96ZM50 50L4 64Q10 50 4 36Z" fill="#C8102E"/></svg><span class="lbl">Cruz pátea · só como detalhe</span></div>
+    <div class="el"><div class="ruler"></div><span class="lbl">Linha fina com marcador vermelho</span></div>
+    <div class="el" style="display:grid;place-items:center"><span class="nums" style="font-size:72px">1898</span><span class="lbl">Numerais grandes</span></div>
+  </div>
+  <p class="small muted" style="margin-top:14px">Regras: cantos levemente arredondados (6 a 12 px), bordas de 1 px, <b>sem sombras fortes e sem gradientes</b>. A faixa diagonal aparece no máximo uma vez por tela.</p>
+</div></section>
+
+<section id="direcoes"><div class="wrap">
+  <div class="eyebrow">Etapa 2 · Direções de layout</div>
+  <h2>Três jeitos de organizar a mesma plataforma</h2>
+  <p class="lead">Mesma marca, mesmas cores, mesmo conteúdo e as mesmas funções. Muda só a organização da tela. Clique para comparar; o botão de sol e lua também vale aqui.</p>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-d="a">A · Vasco Clássico</button>
+    <button role="tab" aria-selected="false" data-d="b">B · Central Digital</button>
+    <button role="tab" aria-selected="false" data-d="c">C · Portal Editorial</button>
+  </div>
+
+  <div class="dir on" id="d-a">
+    <div class="frame"><div class="chrome"><i></i><i></i><i></i><span>bobfelipeoliveira.github.io/falavascao/#/inicio</span></div>
+      <div class="mk-a">
+        <aside><a class="logo" style="margin-bottom:16px"><svg class="sym" width="30" height="30"><use href="#sym"/></svg><span class="wm" style="font-size:20px">FALA,<br>VASCÃO<i>!</i></span></a><span class="it on">Início</span><span class="it">Notícias</span><span class="it">História do Vasco</span><span class="it">Elencos</span><span class="it">Estatísticas</span><span class="it">Game Center</span><span class="it">Seja o Lamachia</span><span class="it">Meu perfil</span></aside>
+        <main>
+          <div class="hero-a"><h4><span>FALA,</span><br><span>VASCÃO!</span></h4><p>A casa digital do vascaíno</p></div>
+          <div class="row3">
+            <div class="blk"><div class="k">Próximo jogo</div><div class="v">VAS × PAL</div><div class="small muted">São Januário · faltam 1d 7h</div></div>
+            <div class="blk"><div class="k">Brasileirão 2026</div><div class="v">13º</div><div class="small muted">após a 34ª rodada</div></div>
+            <div class="blk"><div class="k">Temporada</div><div class="v">25V 18E 20D</div><div class="small muted">63 jogos · 49%</div></div>
+          </div>
+          <div class="since">DESDE 1898 · COLINA HISTÓRICA</div>
+        </main>
+      </div></div>
+    <ul class="pros"><li><b>Sensação:</b> sóbrio e elegante, com cara de clube tradicional. É a que tem mais identidade.</li><li><b>Destaque:</b> a faixa diagonal e as letras grandes, com muito espaço vazio em volta.</li><li><b>Atenção:</b> mostra menos informação por tela, então é preciso rolar mais na página inicial.</li></ul>
+  </div>
+
+  <div class="dir" id="d-b">
+    <div class="frame"><div class="chrome"><i></i><i></i><i></i><span>bobfelipeoliveira.github.io/falavascao/#/inicio</span></div>
+      <div class="mk-b">
+        <div class="tb"><a class="logo"><svg class="sym" width="28" height="28"><use href="#sym"/></svg><span class="wm" style="font-size:17px">FALA,<br>VASCÃO<i>!</i></span></a><div class="nav"><span class="on">Início</span><span>Notícias</span><span>Jogos</span><span>Estatísticas</span><span>Game Center</span><span>História</span></div></div>
+        <div class="body">
+          <div class="c"><div class="k"><span class="live"></span>Próximo jogo · Brasileirão</div><div class="match"><div class="team"><span class="crest">VAS</span>Vasco</div><div style="text-align:center"><div class="small muted">faltam</div><div class="cd">1d 07:55</div></div><div class="team"><span class="crest">PAL</span>Palmeiras</div></div></div>
+          <div class="c"><div class="k">Classificação</div><div class="big">13º</div><div class="small muted">34ª rodada</div></div>
+          <div class="c"><div class="k">Temporada 2026</div><div class="wdl"><span style="flex:25;background:var(--text)"></span><span style="flex:18;background:var(--muted)"></span><span style="flex:20;background:var(--line)"></span></div><div class="small muted">25V · 18E · 20D</div><div class="small muted">Artilheiro: Puma Rodríguez (9)</div></div>
+          <div class="c news"><div class="k">Últimas notícias</div><div class="ni"><span class="th"></span><div><b>Título da notícia em duas linhas no máximo</b><div class="small muted">Netvasco · 06/11</div></div></div><div class="ni"><span class="th"></span><div><b>Outra manchete com resumo próprio</b><div class="small muted">Fonte · 05/11</div></div></div></div>
+          <div class="c"><div class="k">Game Center</div><div class="games"><span>Quiz</span><span>Escalação</span><span>Quem é?</span><span>Partida</span></div></div>
+        </div>
+      </div></div>
+    <ul class="pros"><li><b>Sensação:</b> aplicativo esportivo moderno, prático no dia a dia.</li><li><b>Destaque:</b> muita informação logo na primeira tela, organizada em cartões.</li><li><b>Atenção:</b> é a que mais se parece com outros apps de futebol, então a identidade depende mais do logo e das cores.</li></ul>
+  </div>
+
+  <div class="dir" id="d-c">
+    <div class="frame"><div class="chrome"><i></i><i></i><i></i><span>bobfelipeoliveira.github.io/falavascao/#/inicio</span></div>
+      <div class="mk-c">
+        <div class="mast"><div class="date">Sábado, 7 de novembro de 2026</div><a class="logo" style="margin-top:6px"><svg class="sym" width="40" height="40"><use href="#sym"/></svg><span class="wm" style="font-size:30px">FALA, VASCÃO<i>!</i></span></a></div>
+        <div class="navc"><span>Notícias</span><span>Jogos</span><span>História</span><span>Elencos</span><span>Estatísticas</span><span>Game Center</span></div>
+        <div class="body">
+          <div><div class="img"></div><div class="kick">Brasileirão</div><div class="lead-h">Manchete principal em destaque, com título grande e resumo próprio</div><div class="sub">Linha fina explicando o contexto da notícia, sempre com link para a fonte original.</div></div>
+          <div><div class="side-h"><div class="kick">Mercado</div><b>Segunda manchete do dia</b></div><div class="side-h"><div class="kick">Base</div><b>Terceira manchete com resumo</b></div><div class="side-h"><div class="kick">Próximo jogo</div><b>Vasco × Palmeiras · São Januário</b></div></div>
+        </div>
+        <div class="strip"><div>História: a Resposta Histórica de 1924</div><div>Estatísticas da temporada</div><div>Quiz do dia no Game Center</div></div>
+      </div></div>
+    <ul class="pros"><li><b>Sensação:</b> portal de notícias e revista, com credibilidade.</li><li><b>Destaque:</b> manchetes e imagens grandes, com hierarquia clara.</li><li><b>Atenção:</b> depende de imagens boas e com licença de uso, que o site ainda tem poucas. Também deixa os jogos e o modo gestor menos visíveis.</li></ul>
+  </div>
+</div></section>
+
+<section id="comparar"><div class="wrap">
+  <div class="eyebrow">Etapa 2 · Comparativo</div>
+  <h2>Qual combina mais com o Fala, Vascão!?</h2>
+  <div class="tablewrap" style="margin-top:18px"><table>
+    <thead><tr><th></th><th>A · Vasco Clássico <span class="badge rec">recomendada</span></th><th>B · Central Digital</th><th>C · Portal Editorial</th></tr></thead>
+    <tbody>
+      <tr><th>Identidade vascaína</th><td>★★★★★</td><td>★★★☆☆</td><td>★★★★☆</td></tr>
+      <tr><th>Informação na 1ª tela</th><td>★★★☆☆</td><td>★★★★★</td><td>★★★★☆</td></tr>
+      <tr><th>Jogos e modo gestor</th><td>★★★★☆</td><td>★★★★★</td><td>★★☆☆☆</td></tr>
+      <tr><th>Notícias</th><td>★★★☆☆</td><td>★★★★☆</td><td>★★★★★</td></tr>
+      <tr><th>Celular</th><td>★★★★★</td><td>★★★★☆</td><td>★★★★☆</td></tr>
+      <tr><th>Depende de fotos</th><td>Não</td><td>Pouco</td><td>Muito</td></tr>
+    </tbody></table></div>
+  <div class="card" style="margin-top:16px"><h3>Recomendação: A como padrão</h3><p class="muted">A direção <b>A · Vasco Clássico</b> é a que mais cumpre o objetivo “mais Vasco, mais identidade”, e não depende de fotos que o site ainda não tem. Nas telas cheias de dados (estatísticas, Game Center, modo gestor), ela usa a organização em cartões da <b>B</b>. A <b>C</b> pode continuar como visual opcional para quem prefere ler como revista.</p></div>
+</div></section>
+
+<footer><div class="wrap">Fala, Vascão! · Proposta de identidade visual · novembro de 2026. Projeto de torcedores, sem vínculo oficial com o Club de Regatas Vasco da Gama. O escudo oficial não é reproduzido.</div></footer>
+
+<script>
+'use strict';
+(function(){
+  const root = document.documentElement, KEY = 'falavascao:theme';
+  try { const t = localStorage.getItem(KEY); if (t === 'light' || t === 'dark') root.dataset.theme = t; } catch(e){}
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const t = root.dataset.theme === 'light' ? 'dark' : 'light'; root.dataset.theme = t;
+    try { localStorage.setItem(KEY, t); } catch(e){}
+  });
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  tabs.forEach(b => b.addEventListener('click', () => {
+    tabs.forEach(x => x.setAttribute('aria-selected', String(x === b)));
+    document.querySelectorAll('.dir').forEach(d => d.classList.toggle('on', d.id === 'd-' + b.dataset.d));
+  }));
+})();
+</script>
+</body>
+</html>
