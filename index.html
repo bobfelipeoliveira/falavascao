@@ -290,6 +290,57 @@ td.wrap{white-space:normal;min-width:220px}
 .result-banner{text-align:center;padding:22px;border-radius:var(--r-l);background:var(--black);border:1px solid var(--line);margin-bottom:14px}
 .result-banner .big{color:var(--white)}
 
+/* ============ ARCADE (base comum dos jogos) ============ */
+.arc-menu{display:grid;gap:14px}
+.arc-go{min-height:60px;font-size:18px;width:100%;justify-content:space-between;padding:12px 20px}
+.arc-go small{font-weight:600;opacity:.75;font-size:13px}
+.arc-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.arc-modes .card{text-align:left;padding:14px}
+.arc-rules{display:flex;gap:8px;flex-wrap:wrap}
+.arc-rules span{font-size:12.5px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.arc-hud{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.arc-lives{font-size:20px;letter-spacing:2px;line-height:1}
+.arc-lives .on{color:var(--red)}.arc-lives .off{color:var(--line)}
+.arc-dots{display:flex;gap:5px;flex:1;min-width:120px}
+.arc-dots i{flex:1;max-width:34px;height:6px;border-radius:3px;background:var(--line)}
+.arc-dots i.cur{background:var(--muted)}.arc-dots i.hit{background:var(--white)}.arc-dots i.perfect{background:var(--ok)}.arc-dots i.miss{background:var(--red)}
+.arc-score b{font-family:var(--display);font-size:26px;font-weight:900;font-variant-numeric:tabular-nums}
+.arc-combo{font-family:var(--display);font-weight:900;font-size:16px;padding:3px 10px;border-radius:999px;background:var(--white);color:var(--black);animation:pop .25s}
+.arc-timer{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-bottom:14px}
+.arc-timer i{display:block;height:100%;width:100%;background:var(--white);transition:width .1s linear}
+.arc-timer i.low{background:var(--red)}
+.arc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.arc-opts{grid-template-columns:1fr}}
+.arc-opt{display:flex;align-items:center;gap:12px;margin:0}
+.arc-key{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:6px;border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--muted);flex:none}
+@media (hover:none){.arc-key{display:none}}
+.arc-reveal{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);margin-top:12px;animation:pop .2s}
+.arc-reveal.ok{border-color:var(--ok)}.arc-reveal.err{border-color:var(--red)}
+.arc-reveal b{font-family:var(--display);font-size:22px}
+.arc-pop{position:fixed;z-index:400;transform:translate(-50%,0);font-family:var(--display);font-weight:900;font-size:26px;pointer-events:none;animation:arcpop .9s ease-out forwards;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.arc-pop.ok{color:var(--ok)}.arc-pop.err{color:var(--red2)}
+@keyframes arcpop{from{opacity:1;transform:translate(-50%,0) scale(.9)}to{opacity:0;transform:translate(-50%,-60px) scale(1.15)}}
+.arc-shake{animation:arcshake .35s}
+@keyframes arcshake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.arc-sug{position:absolute;left:0;right:0;top:100%;z-index:30;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.arc-sug:empty{display:none}
+.arc-sug button{display:block;width:100%;text-align:left;padding:10px 12px;background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;font-weight:600}
+.arc-sug button:hover{background:var(--panel2)}
+.arc-year{text-align:center}
+.arc-year .yr{font-family:var(--display);font-weight:900;font-size:clamp(64px,14vw,110px);line-height:1;font-variant-numeric:tabular-nums}
+.arc-year input[type=range]{width:100%;accent-color:var(--white);margin:10px 0}
+.arc-result{text-align:center;padding:26px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel);animation:pop .25s}
+.arc-stars{font-size:46px;letter-spacing:6px;line-height:1;margin-bottom:6px}
+.arc-stars .on{color:var(--white)}.arc-stars .off{color:var(--line)}
+.arc-rec{display:inline-block;margin:8px 0 4px;padding:4px 12px;border-radius:999px;background:var(--red);color:#fff;font-weight:800;font-size:13px;letter-spacing:.06em;animation:pop .3s}
+.arc-grid{font-size:22px;letter-spacing:3px;margin:10px 0;word-break:break-all}
+.arc-stats{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin:10px 0 4px;font-size:14px;color:var(--muted)}
+.arc-stats b{display:block;font-family:var(--display);font-size:24px;color:var(--text)}
+.arc-pair{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:14px}
+.arc-pair .vs{font-family:var(--display);font-weight:900;font-size:22px;color:var(--muted)}
+.arc-yn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.arc-yn .opt{text-align:center;font-size:18px;min-height:64px}
+
 /* ============ CHARTS ============ */
 .chart{width:100%;height:auto;overflow:visible}
 .chart .bar{fill:var(--red);transition:opacity .15s}
@@ -863,10 +914,10 @@ const Cloud = {
   async setPassword(password){ await this.req('/auth/v1/user', {method:'PUT', body:{password}}); },
   async deleteAccount(){ await this.req('/rest/v1/rpc/delete_my_account', {method:'POST', body:{}}); this.saveSession(null); },
   /* ---- perfil ---- */
-  progressOf(p){ return {points:p.points|0, records:p.records||{}, plays:p.plays||{}, medals:p.medals||[], history:(p.history||[]).slice(0,80), daily:p.daily||{}, reads:p.reads|0, favPlayers:(p.favPlayers||[]).slice(0,3), favGames:p.favGames||[]}; },
+  progressOf(p){ return {points:p.points|0, records:p.records||{}, plays:p.plays||{}, medals:p.medals||[], history:(p.history||[]).slice(0,80), daily:p.daily||{}, reads:p.reads|0, favPlayers:(p.favPlayers||[]).slice(0,3), favGames:p.favGames||[], lineupBest:p.lineupBest||{}}; },
   toUser(me, row, admin){
     const pr = row.progress && typeof row.progress === 'object' ? row.progress : {}, obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : {}, arr = v => Array.isArray(v) ? v : [];
-    const profile = Object.assign(Profile.blank(row.display_name), {points:Math.max(0, +pr.points || 0), records:obj(pr.records), plays:obj(pr.plays), medals:arr(pr.medals).map(String), history:arr(pr.history), daily:obj(pr.daily), reads:+pr.reads || 0, favPlayers:arr(pr.favPlayers).map(String).slice(0,3), favGames:arr(pr.favGames).map(String), displayName:String(row.display_name)});
+    const profile = Object.assign(Profile.blank(row.display_name), {points:Math.max(0, +pr.points || 0), records:obj(pr.records), plays:obj(pr.plays), medals:arr(pr.medals).map(String), history:arr(pr.history), daily:obj(pr.daily), reads:+pr.reads || 0, favPlayers:arr(pr.favPlayers).map(String).slice(0,3), favGames:arr(pr.favGames).map(String), lineupBest:obj(pr.lineupBest), displayName:String(row.display_name)});
     return {id:me.id, cloud:true, email:me.email || '', login:String(row.login), name:String(row.display_name), role: admin ? 'admin' : 'torcedor', created:row.created_at, profile};
   },
   async loadUser(){
@@ -1856,181 +1907,433 @@ const GameKit = {
   crest(name, color, hidden){ const ini = hidden ? '?' : U.initials(name).slice(0,3), vasco = !hidden && U.norm(name) === 'vasco';
     return `<div class="crest ${hidden?'hidden':''}"><svg viewBox="0 0 52 60"><path d="M4 4h44v24c0 16-10 24-22 28C14 52 4 44 4 28Z" fill="${hidden?'#222':U.esc(color)}" stroke="#fff" stroke-width="2"/>${vasco ? '<path d="M6 34 L46 14 L46 22 L6 42Z" fill="#fff"/><path d="M26 28L22 18Q26 20 30 18ZM26 28L36 24Q34 28 36 32ZM26 28L30 38Q26 36 22 38ZM26 28L16 32Q18 28 16 24Z" fill="#C8102E"/>' : `<text x="26" y="34" text-anchor="middle" font-family="Barlow,sans-serif" font-weight="700" font-size="13" fill="#fff">${U.esc(ini)}</text>`}</svg><span>${hidden ? '???' : U.esc(name)}</span></div>`; }
 };
-const Games = {
-  player:{ n:1, desc:'Uma imagem começa borrada e ganha nitidez a cada erro. Quanto antes acertar, mais pontos.', render(box){
-    const pick = lvl => {
-      const photos = Store.col('photos').filter(p => U.safeImg(p.img));
-      const pool = lvl === 'foto' ? photos.map(p => ({...p, photo:true})) : Store.col('players').filter(p => lvl === 'facil' ? p.idol : true);
-      if (!pool.length) { box.innerHTML = UI.empty(lvl==='foto'?'Nenhuma foto autorizada cadastrada':'Sem jogadores', lvl==='foto'?'O administrador pode cadastrar fotos com licença em Painel › Fotos dos desafios. Enquanto isso, jogue no modo silhueta.':'Cadastre fichas de jogadores.', '<button class="btn" data-back>Voltar</button>'); U.$('[data-back]', box).onclick = () => Games.player.render(box); return; }
-      const t = pool[Math.floor(Math.random()*pool.length)], round = {}, aliases = [t.name, ...(t.aliases||[])];
-      const clues = t.photo ? [`Posição: ${t.pos||'n/d'}`, `Período no Vasco: ${t.period||'n/d'}`, `Curiosidade: ${GameKit.redact(t.curiosity, aliases)}`, `Carreira: ${GameKit.redact(t.career, aliases)}`, `Iniciais: ${U.initials(t.name)}`]
-        : [`Posição: ${t.pos}. Começou no Vasco em ${t.spans[0][0]}.`, `Período(s) no clube: ${U.spanText(t.spans)}`, `Títulos: ${GameKit.redact(t.titles, aliases)}`, `Momento marcante: ${GameKit.redact(t.moments, aliases)}`, `Iniciais: ${U.initials(t.name)} — ${t.name.length} caracteres`];
-      let tries = 0; const blur = [22,16,11,7,3,0];
-      box.innerHTML = `<div class="scorebar"><span>Tentativa <b id="tt">1</b>/5</span><span>Vale <b id="tv">100</b> pts</span><span class="small muted">${t.photo ? 'Modo foto' : 'Modo silhueta — imagens sem licença não são usadas'}</span></div>
-        <div class="grid g2"><div><div class="photo-frame" id="pf">${t.photo ? `<img src="${U.esc(U.safeImg(t.img))}" alt="Jogador misterioso" style="filter:blur(22px)" referrerpolicy="no-referrer">` : GameKit.silhouette(t.id).replace('<svg', '<svg style="filter:blur(6px)"')}</div>${t.photo && t.credit ? `<p class="small muted" style="text-align:center">Crédito: ${U.esc(t.credit)} · ${U.esc(t.license||'')}</p>` : ''}</div>
-        <div><div id="cl"></div><div class="field" style="margin-top:12px"><label for="gi">Quem é esse jogador?</label><input class="in" id="gi" autocomplete="off" ${lvl==='facil'?'list="pl"':''} placeholder="Digite o nome"><datalist id="pl">${lvl==='facil'?Store.col('players').map(p => `<option value="${U.esc(p.name)}">`).join(''):''}</datalist></div><div class="row"><button class="btn red" id="gs">Chutar</button><button class="btn ghost" id="gg">Desistir</button></div><p id="gm" class="small" style="margin-top:8px" role="status"></p></div></div><div id="gend"></div>`;
-      const drawClues = () => { U.$('#cl', box).innerHTML = clues.map((c,i) => i <= tries - (lvl==='dificil'?1:0) ? `<div class="clue"><span class="n">${i+1}</span><span>${U.esc(c)}</span></div>` : `<div class="clue locked"><span class="n">${i+1}</span><span>Pista bloqueada</span></div>`).join('');
-        const pf = U.$('#pf', box).firstElementChild; pf.style.filter = t.photo ? `blur(${blur[tries]}px)` : `blur(${Math.max(0, 6 - tries*1.5)}px)`;
-        U.$('#tt', box).textContent = Math.min(tries+1, 5); U.$('#tv', box).textContent = Math.max(0, 100 - tries*20); };
-      const end = (won) => { const pts = won ? Math.max(0, 100 - tries*20) : 0; if (!Score.award(round, 'player', pts, `${t.name} — ${won ? 'acertou na tentativa ' + (tries+1) : 'não acertou'}`)) return;
-        if (won && tries === 0) Profile.medal('first_try');
-        U.$('#pf', box).firstElementChild.style.filter = 'none'; U.$('#gi', box).disabled = true; U.$('#gs', box).disabled = true; U.$('#gg', box).disabled = true;
-        GameKit.finish(U.$('#gend', box), {title: won ? 'Acertou!' : 'Era…', points:pts, extra:`<h3 style="margin-top:8px">${U.esc(t.name)}</h3>`, lines:`<div class="card"><dl class="kv"><dt>Posição</dt><dd>${U.esc(t.pos)}</dd><dt>Período no Vasco</dt><dd>${U.esc(t.photo ? t.period : U.spanText(t.spans))}</dd><dt>Curiosidade</dt><dd>${U.esc(t.curiosity)}</dd><dt>Resumo</dt><dd>${U.esc(t.photo ? t.career : t.bio)}</dd><dt>Fonte</dt><dd>${U.esc(t.source||t.credit||'')} ${badge(t.status||'pendente')}</dd></dl></div>`, again:() => Games.player.render(box)}); };
-      const guess = () => { if (round.settled) return; const val = U.$('#gi', box).value; if (!val.trim()) { U.$('#gm', box).textContent = 'Digite um nome antes de chutar.'; return; }
-        if (U.answerMatches(val, aliases)) return end(true);
-        tries++; U.$('#gi', box).value = ''; if (tries >= 5) { U.$('#gm', box).textContent = 'Acabaram as tentativas.'; return end(false); }
-        U.$('#gm', box).textContent = `“${val}” não é a resposta. A imagem ficou mais nítida e uma nova pista foi liberada.`; drawClues(); };
-      U.$('#gs', box).onclick = guess; U.$('#gi', box).onkeydown = e => { if (e.key === 'Enter') guess(); };
-      U.$('#gg', box).onclick = async () => { if (await UI.confirm('Desistir e ver a resposta? Você fará 0 ponto.', {ok:'Desistir', danger:false})) end(false); };
-      drawClues(); U.$('#gi', box).focus();
-    };
-    GameKit.levels(box, [['facil','Fácil','Só ídolos, com sugestões de nomes ao digitar.'],['medio','Médio','Todo o banco de atletas, sem sugestões.'],['dificil','Difícil','A primeira pista só aparece após o primeiro erro.'],['foto','Modo foto','Usa fotos com licença cadastradas pelo administrador.']], pick);
-  }},
-
-  match:{ n:2, desc:'Dicas progressivas revelam uma partida histórica. Cada dica extra custa pontos.', render(box){
-    const pick = mode => {
-      const list = Store.col('mysteries'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma partida misteriosa', 'Cadastre no painel.'); return; }
-      const m = list[Math.floor(Math.random()*list.length)], round = {}; let shown = 1, pts = 100, tries = 0;
-      const ask = mode === 'opcoes' ? `<div id="mo">${U.shuffle(m.options).map(o => `<button class="opt" data-o="${U.esc(o)}">${U.esc(o)}</button>`).join('')}</div>` : `<div class="field"><label for="mi">${mode==='ano'?'Em que ano foi essa partida?':'Quem era o adversário?'}</label><input class="in" id="mi" ${mode==='ano'?'inputmode="numeric" maxlength="4"':''} autocomplete="off"></div><button class="btn red" id="ms">Responder</button>`;
-      box.innerHTML = `<div class="scorebar"><span>Valendo <b id="mp">100</b> pts</span><span class="small muted">Cada dica extra: −15 · cada erro: −10</span></div><div id="mc"></div><button class="btn" id="mh" style="margin-bottom:14px">Revelar próxima dica (−15)</button>${ask}<p id="mm" class="small" style="margin-top:8px" role="status"></p><div id="mend"></div>`;
-      const draw = () => { U.$('#mc', box).innerHTML = m.clues.map((c,i) => i < shown ? `<div class="clue"><span class="n">${i+1}</span><span>${U.esc(c)}</span></div>` : `<div class="clue locked"><span class="n">${i+1}</span><span>Dica bloqueada</span></div>`).join(''); U.$('#mp', box).textContent = pts; U.$('#mh', box).disabled = shown >= m.clues.length || round.settled; };
-      const end = won => { const final = won ? pts : 0; if (!Score.award(round, 'match', final, `${m.score} — ${won?'acertou':'errou'}`)) return; shown = m.clues.length; draw(); U.$$('button,input', box).forEach(x => { if (!x.closest('#mend')) x.disabled = true; });
-        GameKit.finish(U.$('#mend', box), {title: won ? 'Partida descoberta!' : 'A partida era…', points:final, extra:`<h3 style="margin-top:8px">${U.esc(m.score)}</h3>`, lines:`<div class="card"><dl class="kv"><dt>Data</dt><dd>${U.fmtDate(m.date)}</dd><dt>Competição</dt><dd>${U.esc(m.comp)}</dd><dt>Placar</dt><dd>${U.esc(m.score)}</dd><dt>Escalação</dt><dd>${U.esc(m.lineup)}</dd><dt>Gols</dt><dd>${U.esc(m.goals)}</dd><dt>Contexto</dt><dd>${U.esc(m.context)}</dd><dt>Fonte</dt><dd>${U.esc(m.source)} ${badge(m.status)}</dd></dl></div>`, again:() => Games.match.render(box)}); };
-      U.$('#mh', box).onclick = () => { if (round.settled || shown >= m.clues.length) return; shown++; pts = Math.max(0, pts - 15); draw(); };
-      if (mode === 'opcoes') U.$$('#mo .opt', box).forEach(b => b.onclick = () => { if (round.settled) return; const ok = U.answerMatches(b.dataset.o, [m.answer, ...m.aliases]); b.classList.add(ok ? 'right' : 'wrong'); if (!ok) U.$$('#mo .opt', box).forEach(x => { if (U.answerMatches(x.dataset.o, [m.answer, ...m.aliases])) x.classList.add('right'); }); end(ok); });
-      else { const go = () => { if (round.settled) return; const val = U.$('#mi', box).value.trim(); if (!val) { U.$('#mm', box).textContent = 'Digite uma resposta.'; return; }
-          const ok = mode === 'ano' ? +val === m.year : U.answerMatches(val, [m.answer, ...m.aliases]);
-          if (ok) return end(true); tries++; pts = Math.max(0, pts - 10); U.$('#mi', box).value = '';
-          if (tries >= 3) { U.$('#mm', box).textContent = 'Três erros: fim de jogo.'; return end(false); }
-          if (mode === 'ano') U.$('#mm', box).textContent = `Errado. A partida foi ${+val < m.year ? 'depois' : 'antes'} de ${val}. ${3 - tries} tentativa(s).`; else U.$('#mm', box).textContent = `Não é ${val}. ${3 - tries} tentativa(s).`; draw(); };
-        U.$('#ms', box).onclick = go; U.$('#mi', box).onkeydown = e => { if (e.key === 'Enter') go(); }; }
-      draw();
-    };
-    GameKit.levels(box, [['opcoes','Alternativas','Escolha o adversário entre quatro opções. Uma chance.'],['digitar','Digitar adversário','Até três tentativas.'],['ano','Informar o ano','Até três tentativas, com dica de antes/depois.']], pick, 'Escolha o modo');
-  }},
-
-  year:{ n:3, desc:'Uma escalação histórica aparece em campo. Em que ano jogou esse Vasco?', render(box){
-    const pick = lvl => {
-      const list = Store.col('lineups'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma escalação cadastrada', 'Cadastre no painel.'); return; }
-      const l = list[Math.floor(Math.random()*list.length)], round = {}; let pts = 100, tries = 0, coachShown = lvl === 'facil';
-      const opts = U.shuffle([l.year, ...U.shuffle([-6,-3,-2,-1,1,2,3,5].map(d => l.year + d)).slice(0,3)]);
-      box.innerHTML = `<div class="scorebar"><span>Valendo <b id="yp">100</b> pts</span><span class="small muted">Erro: −25 · pista do técnico: −20</span>${badge(l.status)}</div>
-        <div class="grid g2"><div class="lineup-list">${l.players.map(p => `<div class="lp"><span class="pos">${p.pos}</span><span>${U.esc(p.name)}</span><span class="muted small" style="margin-left:auto">${p.num?'#'+U.esc(p.num):''}</span></div>`).join('')}</div>
-        <div><p class="small muted">Formação: ${U.esc(l.formation)}</p><p id="yc" style="margin:8px 0">${coachShown ? 'Técnico: <b>' + U.esc(l.coach) + '</b>' : ''}</p>${lvl==='dificil'||coachShown?'':'<button class="btn sm" id="yh" style="margin-bottom:12px">Mostrar técnico (−20)</button>'}
-        ${lvl === 'facil' ? `<div id="yo">${opts.map(y => `<button class="opt" data-y="${y}">${y}</button>`).join('')}</div>` : `<div class="field"><label for="yi">Ano</label><input class="in" id="yi" inputmode="numeric" maxlength="4" autocomplete="off"></div><button class="btn red" id="ys">Responder</button>`}<p id="ym" class="small" style="margin-top:8px" role="status"></p></div></div><div id="yend"></div>`;
-      const end = won => { const final = won ? pts : 0; if (!Score.award(round, 'year', final, `${l.label} — ${won?'acertou':'errou'}`)) return; U.$$('button,input', box).forEach(x => x.disabled = true);
-        GameKit.finish(U.$('#yend', box), {title: won ? 'Ano correto!' : 'Era o Vasco de…', points:final, extra:`<h3 style="margin-top:8px">${l.year} — ${U.esc(l.label)}</h3>`, lines:`<p class="small muted" style="text-align:center">Técnico: ${U.esc(l.coach)} · Fonte: ${U.esc(l.source)}</p>`, again:() => Games.year.render(box)}); };
-      const yh = U.$('#yh', box); if (yh) yh.onclick = () => { if (round.settled) return; pts = Math.max(0, pts - 20); U.$('#yp', box).textContent = pts; U.$('#yc', box).innerHTML = 'Técnico: <b>' + U.esc(l.coach) + '</b>'; yh.remove(); };
-      if (lvl === 'facil') U.$$('#yo .opt', box).forEach(b => b.onclick = () => { if (round.settled || b.disabled) return; if (+b.dataset.y === l.year) { b.classList.add('right'); end(true); } else { b.classList.add('wrong'); b.disabled = true; tries++; pts = Math.max(0, pts - 25); U.$('#yp', box).textContent = pts; if (tries >= 2) { U.$$('#yo .opt', box).forEach(x => +x.dataset.y === l.year && x.classList.add('right')); end(false); } } });
-      else { const go = () => { if (round.settled) return; const y = parseInt(U.$('#yi', box).value, 10); if (!y) { U.$('#ym', box).textContent = 'Informe um ano com 4 dígitos.'; return; } if (y === l.year) return end(true); tries++; pts = Math.max(0, pts - 25); U.$('#yp', box).textContent = pts; U.$('#yi', box).value = ''; if (tries >= 3) return end(false); U.$('#ym', box).textContent = `Não é ${y}. ${lvl==='medio' ? (Math.abs(y - l.year) <= 3 ? 'Está perto! ' : 'Está longe. ') : ''}${3 - tries} tentativa(s).`; };
-        U.$('#ys', box).onclick = go; U.$('#yi', box).onkeydown = e => { if (e.key === 'Enter') go(); }; }
-    };
-    GameKit.levels(box, [['facil','Fácil','Alternativas e técnico visível. Duas chances.'],['medio','Médio','Digite o ano; dica de proximidade; técnico como pista opcional.'],['dificil','Difícil','Digite o ano, sem pistas extras.']], pick);
-  }},
-
-  career:{ n:4, desc:'Os escudos dos clubes da carreira aparecem um a um. Descubra o jogador.', render(box){
-    const list = Store.col('careers'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma trajetória cadastrada', 'Cadastre no painel.'); return; }
-    const c = list[Math.floor(Math.random()*list.length)], round = {}; let shown = 2, pts = 100, tries = 0;
-    box.innerHTML = `<div class="scorebar"><span>Valendo <b id="cp">100</b> pts</span><span class="small muted">Revelar escudo: −10 · erro: −15</span></div><p class="small muted">Escudos estilizados (não oficiais), apenas com as iniciais dos clubes.</p><div class="crests" id="cc"></div><div class="row" style="justify-content:center;margin-bottom:12px"><button class="btn" id="cr">Revelar próximo clube (−10)</button></div><div class="field"><label for="ci">Que jogador fez essa trajetória?</label><input class="in" id="ci" autocomplete="off"></div><button class="btn red" id="cs">Responder</button><p id="cm" class="small" style="margin-top:8px" role="status"></p><div id="cend"></div>`;
-    const draw = () => { U.$('#cc', box).innerHTML = c.clubs.map((k,i) => (i ? '<span class="arrow">›</span>' : '') + GameKit.crest(k.n, k.c, i >= shown)).join(''); U.$('#cp', box).textContent = pts; U.$('#cr', box).disabled = shown >= c.clubs.length || round.settled; };
-    const end = won => { const final = won ? pts : 0; if (!Score.award(round, 'career', final, `${c.player} — ${won?'acertou':'errou'}`)) return; shown = c.clubs.length; draw(); U.$$('#cs,#ci,#cr', box).forEach(x => x.disabled = true);
-      GameKit.finish(U.$('#cend', box), {title: won ? 'Acertou!' : 'Era…', points:final, extra:`<h3 style="margin-top:8px">${U.esc(c.player)}</h3>`, lines:`<div class="card"><p>${c.clubs.map(k => U.esc(k.n)).join(' › ')}</p><p class="small muted" style="margin-top:6px">${U.esc(c.vascoNote)} · ${U.esc(c.source)} ${badge(c.status)}</p></div>`, again:() => Games.career.render(box)}); };
-    U.$('#cr', box).onclick = () => { if (round.settled || shown >= c.clubs.length) return; shown++; pts = Math.max(0, pts - 10); draw(); };
-    const go = () => { if (round.settled) return; const val = U.$('#ci', box).value; if (!val.trim()) { U.$('#cm', box).textContent = 'Digite um nome.'; return; } if (U.answerMatches(val, [c.player, ...c.aliases])) return end(true); tries++; pts = Math.max(0, pts - 15); U.$('#ci', box).value = ''; if (tries >= 4) return end(false); U.$('#cm', box).textContent = `Não é ${val}. ${4 - tries} tentativa(s).`; if (shown < c.clubs.length) shown++; draw(); };
-    U.$('#cs', box).onclick = go; U.$('#ci', box).onkeydown = e => { if (e.key === 'Enter') go(); }; draw();
-  }},
-
-  quiz:{ n:5, desc:'Perguntas de história, títulos, partidas e recordes. Quatro níveis, feedback imediato.', render(box){
-    const val = {facil:10, medio:15, dificil:20, insano:30};
-    const pick = lvl => {
-      const pool = Store.col('quiz').filter(q => q.level === lvl); if (pool.length < 4) { box.innerHTML = UI.empty('Poucas perguntas neste nível', 'Cadastre mais perguntas no painel.'); return; }
-      const qs = U.shuffle(pool).slice(0, 10), round = {}; let i = 0, pts = 0, hits = 0, streak = 0, best = 0;
-      const show = () => { const q = qs[i], order = U.shuffle([0,1,2,3]);
-        box.innerHTML = `<div class="scorebar"><span>Pergunta <b>${i+1}</b>/${qs.length}</span><span>Pontos <b>${pts}</b></span><span>Sequência <b>${streak}</b></span><span class="small muted">${U.esc(q.cat||'')}</span></div><div class="progress" style="margin-bottom:14px"><i style="width:${i/qs.length*100}%"></i></div><h3 style="margin-bottom:14px;font-size:24px">${U.esc(q.q)}</h3><div>${order.map(k => `<button class="opt" data-k="${k}">${U.esc(q.opts[k])}</button>`).join('')}</div><div id="qf"></div>`;
-        let answered = false;
-        U.$$('.opt', box).forEach(b => b.onclick = () => { if (answered) return; answered = true; const k = +b.dataset.k, ok = k === q.a;
-          U.$$('.opt', box).forEach(x => { x.disabled = true; if (+x.dataset.k === q.a) x.classList.add('right'); }); if (!ok) b.classList.add('wrong');
-          if (ok) { hits++; streak++; best = Math.max(best, streak); pts += val[lvl] + (streak >= 3 ? 5 : 0); } else streak = 0;
-          U.$('#qf', box).innerHTML = `<div class="note ${ok?'':'red'}"><b>${ok ? 'Certo!' : 'Errado.'}</b> ${U.esc(q.exp||'')}</div><button class="btn red" id="qn">${i+1 < qs.length ? 'Próxima pergunta' : 'Ver resultado'}</button>`;
-          U.$('#qn', box).onclick = () => { i++; i < qs.length ? show() : finish(); }; U.$('#qn', box).focus(); }); };
-      const finish = () => { if (!Score.award(round, 'quiz', pts, `Nível ${lvl}: ${hits}/${qs.length} acertos`)) return;
-        if (hits === qs.length && qs.length >= 10) Profile.medal('quiz10'); if (best >= 5) Profile.medal('streak5'); if (lvl === 'insano' && hits / qs.length >= .7) Profile.medal('insano');
-        box.innerHTML = ''; GameKit.finish(box, {title:`Nível ${lvl} — ${hits} de ${qs.length} acertos`, points:pts, extra:`<p class="muted">Maior sequência: ${best}</p>`, again:() => Games.quiz.render(box)}); };
-      show();
-    };
-    GameKit.levels(box, [['facil','Fácil','10 pts por acerto'],['medio','Médio','15 pts por acerto'],['dificil','Difícil','20 pts por acerto'],['insano','Insano','30 pts por acerto']], pick, 'Escolha o nível. Sequências de 3+ acertos valem +5 por pergunta.');
-  }},
-
-  lineup:{ n:6, desc:'Monte no campo a escalação de um time histórico. Arraste ou toque para posicionar.', render(box){
-    const list = Store.col('lineups'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma escalação cadastrada', 'Cadastre no painel.'); return; }
-    box.innerHTML = `<p class="lead" style="margin-bottom:12px">Escolha o desafio</p><div class="grid g3">${list.map(l => `<button class="card click" style="text-align:left" data-id="${l.id}"><h3>Monte o Vasco de ${l.year}</h3><p class="small muted">${U.esc(l.label)}</p><div style="margin-top:6px">${badge(l.status)}</div></button>`).join('')}</div>`;
-    U.$$('[data-id]', box).forEach(b => b.onclick = () => this.play(box, U.byId(list, b.dataset.id)));
+/* ---------------- Arcade: base comum dos jogos ----------------
+   Rodadas, vidas, sequência (combo ×2/×3), relógio, animações, som opcional,
+   sem repetir desafios recentes e tela de resultado com estrelas e "desafiar um amigo".
+   Pontuação continua passando só por Score.award(round, …) — uma vez por partida. */
+const Arcade = {
+  KEY_SOUND:'falavascao:sound', _ctx:null, _keyRoot:null, _keyFn:null, _bound:false,
+  soundOn(){ try { return localStorage.getItem(this.KEY_SOUND) === '1'; } catch(e) { return false; } },
+  toggleSound(){ const on = !this.soundOn(); try { localStorage.setItem(this.KEY_SOUND, on ? '1' : '0'); } catch(e) {} if (on) this.tone('hit'); return on; },
+  tone(kind){
+    if (!this.soundOn()) return;
+    try { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; const c = this._ctx || (this._ctx = new AC());
+      const seq = {hit:[660,880], miss:[220,150], combo:[660,880,1175], end:[523,659,784,1047], tick:[1400]}[kind] || [440];
+      const o = c.createOscillator(), g = c.createGain(), t = c.currentTime, d = seq.length * .08;
+      o.type = kind === 'miss' ? 'sawtooth' : 'triangle'; seq.forEach((f,i) => o.frequency.setValueAtTime(f, t + i * .08));
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d + .1);
+      o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + .12); } catch(e) {}
   },
-  play(box, l){
-    const round = {}, correct = l.players.map(p => p.name), posOf = n => (l.players.find(p => p.name === n)||{}).pos;
-    const pool = U.shuffle([...correct, ...(l.bench||[]).slice(0,3), ...(l.decoys||[])]);
-    const st = {formation:'4-4-2', slots:Array(11).fill(null), sel:null};
-    box.innerHTML = `<div class="scorebar"><span>${U.esc(l.label)}</span><span class="small muted">Toque em um nome e depois em uma posição. No computador, também dá para arrastar.</span></div>
-      <div class="grid g2"><div><div class="filters" style="margin-top:0"><select class="in" id="lf">${Object.keys(FORMATIONS).map(f => `<option>${f}</option>`).join('')}</select><button class="btn" id="lclr">Limpar campo</button></div><div class="pitch" id="lp"></div></div>
-      <div><h3 style="margin-bottom:8px">Jogadores disponíveis</h3><div class="pool" id="lpool"></div><div class="row" style="margin-top:16px"><button class="btn red" id="lchk">Conferir escalação</button><button class="btn ghost" id="lres">Ver reservas da partida</button></div><div id="lend"></div></div></div>`;
-    const pitch = U.$('#lp', box);
-    const draw = (check) => {
-      const f = FORMATIONS[st.formation];
-      pitch.innerHTML = PITCH_LINES + f.map((s,i) => { const n = st.slots[i]; let cls = n ? 'filled' : ''; if (check && n) cls += correct.includes(n) ? ' right' : ' wrong'; if (st.sel && st.sel.slot === i) cls += ' sel';
-        return `<div class="slot ${cls}" data-i="${i}" style="left:${s.x}%;top:${s.y}%"><div class="dot">${s.pos}</div><div class="nm">${n ? U.esc(n) : '—'}</div></div>`; }).join('');
-      U.$('#lpool', box).innerHTML = pool.map(n => `<button class="pchip ${st.slots.includes(n)?'used':''} ${st.sel && st.sel.name === n ? 'sel' : ''}" draggable="true" data-n="${U.esc(n)}">${U.esc(n)}</button>`).join('');
-      if (check) return;
-      U.$$('.slot', pitch).forEach(el => { const i = +el.dataset.i;
-        el.onclick = () => { if (round.settled) return; if (st.sel && st.sel.name) { const prev = st.slots.indexOf(st.sel.name); if (prev >= 0) st.slots[prev] = st.slots[i]; st.slots[i] = st.sel.name; st.sel = null; }
-          else if (st.sel && st.sel.slot !== undefined) { if (st.sel.slot === i && st.slots[i]) { st.slots[i] = null; } else { [st.slots[i], st.slots[st.sel.slot]] = [st.slots[st.sel.slot], st.slots[i]]; } st.sel = null; }
-          else if (st.slots[i]) st.sel = {slot:i}; draw(); };
-        el.ondragover = e => { e.preventDefault(); el.classList.add('drop'); }; el.ondragleave = () => el.classList.remove('drop');
-        el.ondrop = e => { e.preventDefault(); const n = e.dataTransfer.getData('text/plain'); if (!n || round.settled) return; const prev = st.slots.indexOf(n); if (prev >= 0) st.slots[prev] = st.slots[i]; st.slots[i] = n; st.sel = null; draw(); }; });
-      U.$$('.pchip', box).forEach(c => { c.onclick = () => { if (round.settled) return; st.sel = st.sel && st.sel.name === c.dataset.n ? null : {name:c.dataset.n}; draw(); }; c.ondragstart = e => e.dataTransfer.setData('text/plain', c.dataset.n); });
-    };
-    U.$('#lf', box).onchange = e => { st.formation = e.target.value; draw(); };
-    U.$('#lclr', box).onclick = () => { if (round.settled) return; st.slots.fill(null); st.sel = null; draw(); };
-    U.$('#lres', box).onclick = () => UI.modal({title:'Reservas da partida', body: (l.bench||[]).length ? `<div class="row">${l.bench.map(n => `<span class="chip">${U.esc(n)}</span>`).join('')}</div><p class="small muted" style="margin-top:10px">Fonte: ${U.esc(l.source)}</p>` : '<p class="muted">Banco de reservas não cadastrado para este jogo.</p>'});
-    U.$('#lchk', box).onclick = async () => { if (round.settled) return; const filled = st.slots.filter(Boolean).length;
-      if (filled < 11 && !await UI.confirm(`Você posicionou ${filled} de 11 jogadores. Conferir mesmo assim?`, {ok:'Conferir', danger:false})) return;
-      const f = FORMATIONS[st.formation], inXI = st.slots.filter(n => n && correct.includes(n)).length, exact = st.slots.filter((n,i) => n && posOf(n) === f[i].pos).length;
-      const grade = Math.round(((inXI * .75 + exact * .25) / 11) * 100) / 10;
-      Score.award(round, 'lineup', grade * 10, `${l.label}: nota ${grade.toFixed(1)}`); if (grade >= 10) Profile.medal('lineup10');
-      draw(true); U.$$('#lchk,#lclr,#lf', box).forEach(x => x.disabled = true);
-      GameKit.finish(U.$('#lend', box), {title:`Nota ${grade.toFixed(1)} / 10`, points:Math.round(grade*10), extra:`<p class="muted">${inXI}/11 titulares certos · ${exact} na posição exata (${l.formation} na partida)</p>`, lines:`<div class="card"><h3>Escalação correta</h3><div class="lineup-list" style="margin-top:8px">${l.players.map(p => `<div class="lp"><span class="pos">${p.pos}</span>${U.esc(p.name)}</div>`).join('')}</div><p class="small muted" style="margin-top:8px">Técnico: ${U.esc(l.coach)} · ${U.esc(l.source)} ${badge(l.status)}</p></div>`, again:() => Games.lineup.render(box)}); };
-    draw();
-  }},
+  buzz(kind){ try { if (navigator.vibrate) navigator.vibrate(kind === 'miss' ? [50,40,50] : 20); } catch(e) {} },
+  mult(combo){ return combo >= 6 ? 3 : combo >= 3 ? 2 : 1; },
+  start(game, {rounds, lives=3, max=100}={}){ return {game, rounds:Math.max(1, rounds), lives, maxLives:lives, i:0, score:0, combo:0, bestCombo:0, hits:0, marks:[], maxPerRound:max, settle:{}, t0:Date.now(), log:[]}; },
+  /** Acerto: aplica o multiplicador da sequência. base = pontos da rodada antes do multiplicador. */
+  hit(run, base, fx){
+    run.combo++; run.hits++; run.bestCombo = Math.max(run.bestCombo, run.combo);
+    const m = this.mult(run.combo), pts = Math.max(1, Math.round(base * m)); run.score += pts;
+    run.marks.push(base >= run.maxPerRound * .7 ? 'perfect' : 'hit');
+    this.tone(m > 1 && run.combo % 3 === 0 ? 'combo' : 'hit'); this.buzz('hit');
+    if (fx) this.popup(fx, `+${pts}${m > 1 ? ' ×' + m : ''}`, 'ok'); return pts;
+  },
+  miss(run, fx, loseLife = true){
+    run.combo = 0; if (loseLife) run.lives = Math.max(0, run.lives - 1); run.marks.push('miss');
+    this.tone('miss'); this.buzz('miss'); if (fx) { this.shake(fx); this.popup(fx, loseLife ? '−1 vida' : 'Errou', 'err'); }
+  },
+  over(run){ return (run.maxLives > 0 && run.lives <= 0) || run.i >= run.rounds; },
+  hud(run, extra=''){
+    const lives = run.maxLives ? `<span class="arc-lives" aria-label="${run.lives} de ${run.maxLives} vidas">${Array.from({length:run.maxLives}, (_,k) => `<span class="${k < run.lives ? 'on' : 'off'}">♥</span>`).join('')}</span>` : '';
+    const dots = run.rounds <= 20 ? `<span class="arc-dots" aria-label="Rodada ${Math.min(run.i+1, run.rounds)} de ${run.rounds}">${Array.from({length:run.rounds}, (_,k) => `<i class="${run.marks[k] || (k === run.i ? 'cur' : '')}"></i>`).join('')}</span>` : `<span class="small muted" style="flex:1">Rodada ${run.i+1}</span>`;
+    return `<div class="arc-hud">${lives}${dots}<span class="arc-score"><b id="arcScore">${run.score}</b> pts</span>${this.mult(run.combo) > 1 ? `<span class="arc-combo" title="Sequência de ${run.combo} acertos">×${this.mult(run.combo)}</span>` : ''}${extra}</div>`;
+  },
+  /** Relógio da rodada (barra que esvazia). Para sozinho se a tela mudar. */
+  timer(bar, secs, {onEnd, onTick}={}){
+    const now = () => (window.performance && performance.now) ? performance.now() : Date.now();
+    const t0 = now(), dur = secs * 1000; let stopped = false;
+    const id = setInterval(() => { if (stopped) return; if (!bar || !document.body.contains(bar)) { stopped = true; clearInterval(id); return; }
+      const el = now() - t0, left = Math.max(0, 1 - el / dur); bar.style.width = (left * 100) + '%'; bar.classList.toggle('low', left < .25);
+      if (onTick) onTick(left, el); if (left <= 0) { stopped = true; clearInterval(id); if (onEnd) onEnd(); } }, 100);
+    return {stop(){ stopped = true; clearInterval(id); }, left(){ return Math.max(0, 1 - (now() - t0) / dur); }, elapsed(){ return now() - t0; }};
+  },
+  popup(anchor, text, kind){
+    try { const r = anchor.getBoundingClientRect(), el = document.createElement('div'); el.className = 'arc-pop ' + kind; el.textContent = text;
+      el.style.left = (r.left + r.width / 2) + 'px'; el.style.top = Math.max(60, r.top) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 950); } catch(e) {}
+  },
+  shake(el){ if (!el) return; el.classList.remove('arc-shake'); void el.offsetWidth; el.classList.add('arc-shake'); },
+  /** Atalhos de teclado (1–4, ←/→, Enter) válidos só enquanto a tela do jogo estiver aberta. */
+  keys(root, fn){
+    this._keyRoot = root; this._keyFn = fn;
+    if (!this._bound) { this._bound = true; document.addEventListener('keydown', e => {
+      if (!this._keyFn || !this._keyRoot || !document.body.contains(this._keyRoot) || document.querySelector('.modal-bg')) return;
+      if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; this._keyFn(e); }); }
+  },
+  choices(container, labels, onPick){
+    container.innerHTML = `<div class="arc-opts">${labels.map((l,i) => `<button class="opt arc-opt" data-c="${i}"><span class="arc-key">${i+1}</span><span>${U.esc(l)}</span></button>`).join('')}</div>`;
+    const btns = U.$$('.arc-opt', container); btns.forEach(b => b.onclick = () => { if (!b.disabled) onPick(+b.dataset.c, b, btns); });
+    this.keys(container, e => { const n = parseInt(e.key, 10); if (n >= 1 && n <= btns.length && !btns[n-1].disabled) btns[n-1].click(); });
+    return btns;
+  },
+  lock(btns, rightIdx, pickedIdx){ btns.forEach((b,i) => { b.disabled = true; if (i === rightIdx) b.classList.add('right'); if (i === pickedIdx && i !== rightIdx) b.classList.add('wrong'); }); },
+  /** Sugestões ao digitar (sem acento, sem diferenciar maiúsculas). */
+  suggest(input, names, minLen = 2){
+    const list = [...new Set(names.filter(Boolean))], wrap = input.parentNode, box = document.createElement('div');
+    box.className = 'arc-sug'; wrap.style.position = 'relative'; input.after(box); input.setAttribute('autocomplete', 'off');
+    const close = () => { box.innerHTML = ''; };
+    input.addEventListener('input', () => { if (input.dataset.nosug) return close(); const q = U.norm(input.value.trim()); if (q.length < minLen) return close();
+      box.innerHTML = list.filter(n => U.norm(n).includes(q)).slice(0, 6).map(n => `<button type="button" data-s="${U.esc(n)}">${U.esc(n)}</button>`).join('');
+      U.$$('button', box).forEach(b => b.onmousedown = e => { e.preventDefault(); input.value = b.dataset.s; close(); input.focus(); }); });
+    input.addEventListener('blur', () => setTimeout(close, 150));
+    return {close};
+  },
+  /** Sorteia sem repetir os desafios vistos recentemente. */
+  fresh(game, list, n, idOf = x => x.id){
+    let seen = []; try { seen = JSON.parse(localStorage.getItem('falavascao:seen:' + game) || '[]'); } catch(e) {}
+    const unseen = list.filter(x => !seen.includes(idOf(x))), take = Math.min(n, list.length);
+    const pick = unseen.length >= take ? U.shuffle(unseen).slice(0, take) : [...U.shuffle(unseen), ...U.shuffle(list.filter(x => !unseen.includes(x)))].slice(0, take);
+    seen = [...pick.map(idOf), ...seen].slice(0, Math.max(0, list.length - take));
+    try { localStorage.setItem('falavascao:seen:' + game, JSON.stringify(seen)); } catch(e) {}
+    return pick;
+  },
+  /** Opções erradas plausíveis (mesma posição quando possível). */
+  decoys(answer, pool, n = 3, key = x => x.pos){
+    const others = pool.filter(x => U.norm(x.name) !== U.norm(answer.name));
+    const same = U.shuffle(others.filter(x => key(x) && key(x) === key(answer))), rest = U.shuffle(others.filter(x => !same.includes(x)));
+    return [...same, ...rest].slice(0, n).map(x => x.name);
+  },
+  yearScore(diff){ diff = Math.abs(diff); return diff === 0 ? 1 : diff <= 1 ? .7 : diff <= 3 ? .4 : diff <= 6 ? .15 : 0; },
+  /** Tela inicial do jogo: um botão grande para jogar já e os outros modos ao lado. */
+  menu(box, game, modes, onPick){
+    const g = Games[game], [first, ...rest] = modes, on = this.soundOn();
+    box.innerHTML = `<div class="arc-menu"><p class="lead">${U.esc(g.pitch || g.desc)}</p>${(g.tags||[]).length ? `<div class="arc-rules">${g.tags.map(t => `<span>${U.esc(t)}</span>`).join('')}</div>` : ''}
+      <button class="btn red arc-go" data-k="${first[0]}"><span>▶ Jogar agora · ${U.esc(first[1])}</span><small>${U.esc(first[2])}</small></button>
+      ${rest.length ? `<div class="arc-modes">${rest.map(([k,t,d]) => `<button class="card click" data-k="${k}"><h3>${U.esc(t)}</h3><p class="small muted">${U.esc(d)}</p></button>`).join('')}</div>` : ''}
+      <div class="row"><button class="btn sm ghost" id="arcSnd" aria-pressed="${on}">${on ? 'Som: ligado' : 'Som: desligado'}</button><span class="small muted">No computador, use as teclas 1–4 para responder.</span></div></div>`;
+    U.$$('[data-k]', box).forEach(b => b.onclick = () => onPick(b.dataset.k));
+    U.$('#arcSnd', box).onclick = e => { const v = this.toggleSound(); e.currentTarget.textContent = v ? 'Som: ligado' : 'Som: desligado'; e.currentTarget.setAttribute('aria-pressed', String(v)); };
+    this.keys(box, e => { if (e.key === 'Enter') { const b = U.$('.arc-go', box); if (b) b.click(); } });
+  },
+  /** Revela a resposta da rodada e oferece "Próxima" (Enter também avança). */
+  reveal(container, ok, html, next, label){
+    container.insertAdjacentHTML('beforeend', `<div class="arc-reveal ${ok ? 'ok' : 'err'}" role="status"><div>${html}</div><button class="btn red" data-next>${U.esc(label || 'Próxima ▶')}</button></div>`);
+    const b = U.$('[data-next]', container); b.onclick = () => { b.disabled = true; next(); }; b.focus && b.focus();
+    this.keys(container, e => { if (e.key === 'Enter' && !b.disabled) b.click(); });
+  },
+  link(game){ const base = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : 'https://bobfelipeoliveira.github.io/falavascao/'; return base + '#/games/' + game; },
+  async share(text){
+    try { if (navigator.share) { await navigator.share({text}); return; } } catch(e) { if (e && e.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(text); UI.toast('Resultado copiado! Cole no WhatsApp ou onde quiser.'); return; } catch(e) {}
+    UI.modal({title:'Desafie um amigo', body:`<p class="small muted" style="margin-bottom:8px">Copie o texto abaixo e mande para quem quiser:</p><textarea class="in" readonly style="min-height:140px">${U.esc(text)}</textarea>`});
+  },
+  /** Fim da partida: grava pontos (uma vez), estrelas, recorde, resumo e compartilhamento. */
+  result(box, run, {title, detail, extra='', again, max}){
+    const prev = Profile.current().records[run.game] || 0;
+    if (!Score.award(run.settle, run.game, run.score, detail || `${run.hits}/${run.marks.length} acertos`)) return false;
+    const best = max ?? run.rounds * run.maxPerRound * 2, pct = best ? run.score / best : 0;
+    const stars = run.score <= 0 ? 0 : pct >= .6 ? 3 : pct >= .3 ? 2 : 1, rec = run.score > 0 && run.score > prev;
+    const grid = run.marks.map(m => m === 'perfect' ? '🟩' : m === 'hit' ? '🟨' : '🟥').join('');
+    const secs = Math.round((Date.now() - run.t0) / 1000);
+    this.tone('end');
+    box.innerHTML = `<div class="arc-result"><div class="arc-stars" aria-label="${stars} de 3 estrelas">${[0,1,2].map(k => `<span class="${k < stars ? 'on' : 'off'}">★</span>`).join('')}</div>
+      <div class="kicker">${U.esc(title)}</div><div class="big">${run.score} pts</div>${rec ? '<div class="arc-rec">NOVO RECORDE!</div>' : prev ? `<p class="small muted">Seu recorde: ${prev} pts</p>` : ''}
+      ${grid ? `<div class="arc-grid" aria-hidden="true">${grid}</div>` : ''}
+      <div class="arc-stats"><span><b>${run.hits}/${run.marks.length}</b>acertos</span><span><b>${run.bestCombo}</b>maior sequência</span><span><b>${secs < 60 ? secs + 's' : Math.floor(secs/60) + 'min ' + (secs % 60) + 's'}</b>tempo</span></div>
+      ${extra}
+      <div class="row" style="justify-content:center;margin-top:14px"><button class="btn red" data-again>▶ Jogar de novo</button><button class="btn" data-share>Desafiar um amigo</button><a class="btn ghost" href="#/games">Outros jogos</a></div></div>`;
+    U.$('[data-again]', box).onclick = again;
+    U.$('[data-share]', box).onclick = () => this.share(`FALA, VASCÃO! · ${GAME_NAMES[run.game]}\n${grid}\n${run.score} pts${rec ? ' · novo recorde!' : ''} · sequência de ${run.bestCombo}\nDuvido você fazer mais: ${this.link(run.game)}`);
+    this.keys(box, e => { if (e.key === 'Enter') U.$('[data-again]', box).click(); });
+    try { U.$('[data-again]', box).scrollIntoView({behavior:'smooth', block:'center'}); } catch(e) {}
+    return true;
+  }
+};
 
-  complete:{ n:7, desc:'Uma equipe histórica com nomes ocultos. Preencha as lacunas.', render(box){
-    const pick = lvl => { const list = Store.col('lineups'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma escalação cadastrada', 'Cadastre no painel.'); return; }
-      const l = list[Math.floor(Math.random()*list.length)], k = {facil:3, medio:5, dificil:7}[lvl], hidden = new Set(U.shuffle(l.players.map((_,i) => i)).slice(0,k)), round = {};
+const Games = {
+  /* 1 — QUEM É ESSE JOGADOR? */
+  player:{ n:1, desc:'Silhueta borrada e pistas que aparecem sozinhas. Quanto mais rápido acertar, mais pontos.', pitch:'Uma silhueta borrada e pistas que vão aparecendo sozinhas. Quanto antes você acertar, mais pontos. Acertos seguidos multiplicam a pontuação.', tags:['5 rodadas','3 vidas','contra o relógio','sequência ×2 ×3'],
+    render(box){ const hasPhotos = Store.col('photos').some(p => U.safeImg(p.img));
+      Arcade.menu(box, 'player', [['rapido','Rápido','4 alternativas, pistas automáticas'], ['craque','Craque','Digite o nome: mais difícil, vale mais'], ...(hasPhotos ? [['foto','Modo foto','Fotos com licença cadastradas pelo admin']] : [])], mode => this.play(box, mode)); },
+    play(box, mode){
+      const players = Store.col('players').filter(p => (p.spans||[]).length);
+      const pool = mode === 'foto' ? Store.col('photos').filter(p => U.safeImg(p.img)).map(p => ({...p, photo:true})) : players;
+      if (pool.length < 4) { box.innerHTML = UI.empty('Poucos jogadores cadastrados', 'Cadastre mais fichas (ou fotos com licença) no painel.', '<a class="btn" href="#/games">Voltar</a>'); return; }
+      const picks = Arcade.fresh('player' + mode, pool, 5), run = Arcade.start('player', {rounds:picks.length, lives:3, max: mode === 'craque' ? 150 : 100});
+      const names = [...pool, ...players].map(p => p.name);
+      const round = () => {
+        if (Arcade.over(run)) return finish();
+        const t = picks[run.i], aliases = [t.name, ...(t.aliases||[])];
+        const clues = t.photo ? [`Posição: ${t.pos||'n/d'}`, `Período no Vasco: ${t.period||'n/d'}`, `Curiosidade: ${GameKit.redact(t.curiosity, aliases) || 'n/d'}`, `Carreira: ${GameKit.redact(t.career, aliases) || 'n/d'}`, `Iniciais: ${U.initials(t.name)}`]
+          : [`Posição: ${t.pos}`, `No Vasco: ${U.spanText(t.spans)}`, `Títulos: ${GameKit.redact(t.titles, aliases) || 'n/d'}`, `Marcou época: ${GameKit.redact(t.moments || t.bio, aliases) || 'n/d'}`, `Iniciais: ${U.initials(t.name)} · ${t.name.length} letras`];
+        const secs = mode === 'craque' ? 40 : 25, every = secs / clues.length; let shown = 1, wrong = 0, done = false;
+        box.innerHTML = Arcade.hud(run) + `<div class="arc-timer"><i id="arcT"></i></div><div class="grid g2"><div><div class="photo-frame" id="pf">${t.photo ? `<img src="${U.esc(U.safeImg(t.img))}" alt="Jogador misterioso" referrerpolicy="no-referrer">` : GameKit.silhouette(t.id)}</div>${t.photo && t.credit ? `<p class="small muted" style="text-align:center">Crédito: ${U.esc(t.credit)} · ${U.esc(t.license||'')}</p>` : ''}</div><div><div id="cl"></div><div id="ans" style="margin-top:12px"></div></div></div><div id="rv"></div>`;
+        const pf = () => U.$('#pf', box).firstElementChild;
+        const drawClues = () => { U.$('#cl', box).innerHTML = clues.map((c,i) => i < shown ? `<div class="clue"><span class="n">${i+1}</span><span>${U.esc(c)}</span></div>` : `<div class="clue locked"><span class="n">${i+1}</span><span>Pista ${i+1} em breve…</span></div>`).join('');
+          const b = done ? 0 : t.photo ? [24,17,11,6,3][shown-1] : [8,6,4,2.5,1][shown-1]; pf().style.filter = `blur(${b}px)`; };
+        const settle = (ok, picked) => { if (done) return; done = true; tm.stop(); pf().style.filter = 'none'; drawClues();
+          const left = tm.left(), base = Math.round(run.maxPerRound * (.3 + .7 * left) * (mode === 'craque' ? 1 - wrong * .15 : 1));
+          if (ok) { Arcade.hit(run, base, U.$('#ans', box)); if (shown === 1) Profile.medal('first_try'); } else Arcade.miss(run, U.$('#ans', box));
+          run.log.push(t.name); run.i++; U.$$('#ans button, #ans input', box).forEach(x => x.disabled = true);
+          Arcade.reveal(U.$('#rv', box), ok, `${ok ? 'Acertou!' : picked === null ? 'Tempo esgotado. Era' : 'Era'} <b>${U.esc(t.name)}</b><div class="small muted">${U.esc(t.pos||'')} · ${U.esc(t.photo ? (t.period||'') : U.spanText(t.spans))}</div>`, round, Arcade.over(run) ? 'Ver resultado' : 'Próximo ▶'); };
+        const tm = Arcade.timer(U.$('#arcT', box), secs, {onTick:(l, el) => { const s = Math.min(clues.length, 1 + Math.floor(el / 1000 / every)); if (s !== shown && !done) { shown = s; drawClues(); } }, onEnd:() => settle(false, null)});
+        if (mode === 'craque') {
+          U.$('#ans', box).innerHTML = `<div class="field"><label for="gi">Quem é esse jogador?</label><input class="in" id="gi" placeholder="Digite o nome" data-nosug="1"></div><div class="row"><button class="btn red" id="gs">Chutar</button><button class="btn ghost" id="gskip">Pular</button></div><p id="gm" class="small" style="margin-top:6px" role="status"></p>`;
+          const inp = U.$('#gi', box); Arcade.suggest(inp, names, 3);
+          const go = () => { if (done) return; const v = inp.value.trim(); if (!v) return; if (U.answerMatches(v, aliases)) return settle(true, v);
+            wrong++; inp.value = ''; Arcade.shake(inp); if (wrong >= 2) delete inp.dataset.nosug;
+            if (wrong >= 3) return settle(false, v); shown = Math.min(clues.length, shown + 1); drawClues(); U.$('#gm', box).textContent = `Não é “${v}”. ${3 - wrong} chute(s) nesta rodada${wrong >= 2 ? ' — sugestões liberadas' : ''}.`; };
+          U.$('#gs', box).onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); }; U.$('#gskip', box).onclick = () => settle(false, '');
+          try { inp.focus(); } catch(e) {}
+        } else {
+          const opts = U.shuffle([t.name, ...Arcade.decoys(t, mode === 'foto' ? [...pool, ...players] : pool)]);
+          Arcade.choices(U.$('#ans', box), opts, (i, b, btns) => { if (done) return; const ok = opts[i] === t.name; Arcade.lock(btns, opts.indexOf(t.name), i); settle(ok, opts[i]); });
+        }
+        drawClues();
+      };
+      const finish = () => Arcade.result(box, run, {title: run.lives ? 'Partida completa' : 'Fim das vidas', detail:`${mode}: ${run.hits}/${run.marks.length} jogadores`, extra:`<p class="small muted" style="margin-top:6px">Nesta partida: ${run.log.map(U.esc).join(' · ')}</p>`, again:() => this.play(box, mode)});
+      round();
+    }},
+
+  /* 2 — ADIVINHE A PARTIDA */
+  match:{ n:2, desc:'Dicas que aparecem sozinhas revelam uma partida histórica. Responda antes do tempo acabar.', pitch:'Dicas vão surgindo sobre uma partida histórica do Vasco. Descubra o adversário (ou o ano) antes do relógio zerar.', tags:['rodadas','3 vidas','dicas automáticas','sequência ×2 ×3'],
+    render(box){ Arcade.menu(box, 'match', [['opcoes','Alternativas','Escolha o adversário entre 4 opções'], ['digitar','Digitar adversário','Até 2 chutes por partida'], ['ano','Cravar o ano','Arraste até o ano: quanto mais perto, mais pontos']], mode => this.play(box, mode)); },
+    play(box, mode){
+      const list = Store.col('mysteries'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma partida misteriosa', 'Cadastre no painel.'); return; }
+      const picks = Arcade.fresh('match', list, 5), run = Arcade.start('match', {rounds:picks.length, lives:3}), opponents = list.flatMap(m => [m.answer, ...(m.options||[])]);
+      const round = () => {
+        if (Arcade.over(run)) return finish();
+        const m = picks[run.i], secs = 30, every = secs / m.clues.length; let shown = 1, done = false, tries = 0;
+        box.innerHTML = Arcade.hud(run) + `<div class="arc-timer"><i id="arcT"></i></div><div id="mc"></div><div id="ans" style="margin-top:12px"></div><div id="rv"></div>`;
+        const draw = () => { U.$('#mc', box).innerHTML = m.clues.map((c,i) => i < shown ? `<div class="clue"><span class="n">${i+1}</span><span>${U.esc(c)}</span></div>` : `<div class="clue locked"><span class="n">${i+1}</span><span>Dica ${i+1} em breve…</span></div>`).join(''); };
+        const settle = (ok, base) => { if (done) return; done = true; tm.stop(); shown = m.clues.length; draw();
+          if (ok) Arcade.hit(run, base, U.$('#ans', box)); else Arcade.miss(run, U.$('#ans', box));
+          run.log.push(m.score); run.i++; U.$$('#ans button, #ans input', box).forEach(x => x.disabled = true);
+          Arcade.reveal(U.$('#rv', box), ok, `<b>${U.esc(m.score)}</b><div class="small muted">${U.fmtDate(m.date)} · ${U.esc(m.comp)} ${badge(m.status)}</div>${m.context ? `<div class="small" style="margin-top:4px">${U.esc(m.context)}</div>` : ''}`, round, Arcade.over(run) ? 'Ver resultado' : 'Próxima ▶'); };
+        const base = () => Math.round(run.maxPerRound * (.3 + .7 * tm.left()));
+        const tm = Arcade.timer(U.$('#arcT', box), secs, {onTick:(l, el) => { const s = Math.min(m.clues.length, 1 + Math.floor(el / 1000 / every)); if (s !== shown && !done) { shown = s; draw(); } }, onEnd:() => settle(false)});
+        if (mode === 'opcoes') { const opts = U.shuffle(m.options); Arcade.choices(U.$('#ans', box), opts, (i, b, btns) => { const right = opts.findIndex(o => U.answerMatches(o, [m.answer, ...(m.aliases||[])])); const ok = i === right; Arcade.lock(btns, right, i); settle(ok, base()); }); }
+        else if (mode === 'digitar') {
+          U.$('#ans', box).innerHTML = `<div class="field"><label for="mi">Quem era o adversário?</label><input class="in" id="mi" placeholder="Nome do adversário"></div><div class="row"><button class="btn red" id="ms">Responder</button></div><p id="mm" class="small" role="status"></p>`;
+          const inp = U.$('#mi', box); Arcade.suggest(inp, opponents);
+          const go = () => { if (done) return; const v = inp.value.trim(); if (!v) return; if (U.answerMatches(v, [m.answer, ...(m.aliases||[])])) return settle(true, base());
+            tries++; inp.value = ''; Arcade.shake(inp); if (tries >= 2) return settle(false); U.$('#mm', box).textContent = `Não é ${v}. Último chute!`; shown = Math.min(m.clues.length, shown + 1); draw(); };
+          U.$('#ms', box).onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); }; try { inp.focus(); } catch(e) {}
+        } else Games.year.slider(U.$('#ans', box), y => { const sc = Arcade.yearScore(y - m.year); settle(sc > 0, Math.round(run.maxPerRound * sc * (.5 + .5 * tm.left()))); return m.year; });
+        draw();
+      };
+      const finish = () => Arcade.result(box, run, {title: run.lives ? 'Rodada completa' : 'Fim das vidas', detail:`${mode}: ${run.hits}/${run.marks.length} partidas`, extra:`<p class="small muted" style="margin-top:6px">${run.log.map(U.esc).join(' · ')}</p>`, again:() => this.play(box, mode)});
+      round();
+    }},
+
+  /* 3 — DE QUE ANO É ESSE VASCO? */
+  year:{ n:3, desc:'Escalações e conquistas históricas: arraste até o ano certo. Quanto mais perto, mais pontos.', pitch:'Aparece uma escalação ou uma conquista do Vasco. Arraste até o ano: cravou, 100 pontos; passou perto, ainda pontua.', tags:['5 rodadas','3 vidas','quanto mais perto, mais pontos'],
+    render(box){ Arcade.menu(box, 'year', [['facil','Com técnico','Mostra o técnico como pista'], ['dificil','Sem pistas','Só a escalação ou a conquista']], mode => this.play(box, mode)); },
+    /** Seletor de ano reutilizável. check(ano) devolve o ano correto para exibir. */
+    slider(container, check){
+      let y = 1960, done = false;
+      container.innerHTML = `<div class="arc-year"><div class="yr" id="yv">${y}</div><input type="range" id="yr" min="1898" max="2026" value="${y}" aria-label="Ano"><div class="row" style="justify-content:center"><button class="btn sm" data-d="-10">−10</button><button class="btn sm" data-d="-1">−1</button><button class="btn sm" data-d="1">+1</button><button class="btn sm" data-d="10">+10</button></div><button class="btn red" id="ycrav" style="margin-top:12px;min-width:200px">Cravar ${y}</button><p id="ym" class="small" role="status" style="margin-top:6px"></p></div>`;
+      const set = v => { y = Math.max(1898, Math.min(2026, v)); U.$('#yv', container).textContent = y; U.$('#yr', container).value = y; U.$('#ycrav', container).textContent = 'Cravar ' + y; };
+      U.$('#yr', container).oninput = e => set(+e.target.value);
+      U.$$('[data-d]', container).forEach(b => b.onclick = () => set(y + +b.dataset.d));
+      U.$('#ycrav', container).onclick = () => { if (done) return; done = true; const real = check(y), d = y - real;
+        U.$('#ym', container).innerHTML = d === 0 ? '<b>Na mosca!</b>' : `Era <b>${real}</b> · você errou por ${Math.abs(d)} ano(s)${Math.abs(d) <= 3 ? ' — passou perto!' : ''}`; U.$$('button, input', container).forEach(x => x.disabled = true); };
+      Arcade.keys(container, e => { if (e.key === 'ArrowLeft') set(y - 1); else if (e.key === 'ArrowRight') set(y + 1); else if (e.key === 'Enter') U.$('#ycrav', container).click(); });
+      return {set};
+    },
+    items(){
+      const hide = s => String(s || '').replace(/\b(18|19|20)\d{2}\b/g, '••••');
+      const lus = Store.col('lineups').map(l => ({id:'l:' + l.id, year:+l.year, kind:'lineup', title:'Esta escalação jogou em que ano?', body:`<div class="lineup-list">${l.players.map(p => `<div class="lp"><span class="pos">${p.pos}</span><span>${U.esc(p.name)}</span></div>`).join('')}</div><p class="small muted" style="margin-top:6px">Formação ${U.esc(l.formation)}</p>`, coach:l.coach, label:l.label, status:l.status}));
+      const known = s => s && !/pendente|n\/d|não disponível|a confirmar/i.test(String(s));
+      // Só títulos com pistas reais (adversário ou destaques confirmados); sem isso o desafio seria impossível.
+      const tts = Store.col('titles').filter(t => +t.year && t.status !== 'pendente' && t.official !== 'amistoso' && (known(t.opponent) || known(t.players))).map(t => ({id:'t:' + t.id, year:+t.year, kind:'title', title:'Em que ano o Vasco conquistou este título?', body:`<div class="card"><div class="kicker">${U.esc(CAT_TXT[t.cat] || 'Título')}</div><h3>${U.esc(hide(t.comp))}</h3>${known(t.opponent) ? `<p class="muted">Decisão contra ${U.esc(hide(t.opponent))}</p>` : ''}${known(t.players) ? `<p class="small muted" style="margin-top:6px">Destaques: ${U.esc(hide(t.players))}</p>` : ''}</div>`, coach:known(t.coach) ? t.coach : '', label:hide(t.comp), status:t.status}));
+      return [...lus, ...tts].filter(x => x.year >= 1898 && x.year <= 2026);
+    },
+    play(box, mode){
+      const items = this.items(); if (items.length < 3) { box.innerHTML = UI.empty('Poucos desafios cadastrados', 'Cadastre escalações ou títulos no painel.'); return; }
+      const picks = Arcade.fresh('year', items, 5), run = Arcade.start('year', {rounds:picks.length, lives:3});
+      const round = () => {
+        if (Arcade.over(run)) return finish();
+        const it = picks[run.i]; let done = false;
+        box.innerHTML = Arcade.hud(run) + `<div class="arc-timer"><i id="arcT"></i></div><div class="grid g2"><div><h3 style="margin-bottom:10px">${U.esc(it.title)}</h3>${it.body}${mode === 'facil' && it.coach && !/pendente|n\/d/i.test(it.coach) ? `<p style="margin-top:8px">Técnico: <b>${U.esc(it.coach)}</b></p>` : ''}</div><div id="ans"></div></div><div id="rv"></div>`;
+        const tm = Arcade.timer(U.$('#arcT', box), 25, {onEnd:() => { if (!done) { const b = U.$('#ycrav', box); if (b && !b.disabled) b.click(); } }});
+        this.slider(U.$('#ans', box), y => { done = true; tm.stop(); const sc = Arcade.yearScore(y - it.year), base = Math.round(run.maxPerRound * sc * (.6 + .4 * tm.left()) * (mode === 'dificil' ? 1.3 : 1));
+          if (sc > 0) Arcade.hit(run, base, U.$('#ans', box)); else Arcade.miss(run, U.$('#ans', box));
+          run.log.push(`${it.label} (${it.year})`); run.i++;
+          Arcade.reveal(U.$('#rv', box), sc > 0, `<b>${it.year}</b> · ${U.esc(it.label)} ${badge(it.status)}`, round, Arcade.over(run) ? 'Ver resultado' : 'Próximo ▶');
+          return it.year; });
+      };
+      const finish = () => Arcade.result(box, run, {title: run.lives ? 'Viagem no tempo completa' : 'Fim das vidas', detail:`${mode}: ${run.hits}/${run.marks.length} anos`, extra:`<p class="small muted" style="margin-top:6px">${run.log.map(U.esc).join(' · ')}</p>`, again:() => this.play(box, mode)});
+      round();
+    }},
+
+  /* 4 — JÁ VESTIU A CAMISA? */
+  career:{ n:4, desc:'Os escudos da carreira aparecem um a um, sozinhos. Descubra o jogador antes de revelar tudo.', pitch:'Os clubes da carreira vão aparecendo, um a um. Quanto menos escudos você precisar, mais pontos.', tags:['rodadas','3 vidas','escudos automáticos'],
+    render(box){ Arcade.menu(box, 'career', [['rapido','Rápido','4 alternativas'], ['craque','Craque','Digite o nome']], mode => this.play(box, mode)); },
+    play(box, mode){
+      const list = Store.col('careers'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma trajetória cadastrada', 'Cadastre no painel.'); return; }
+      const picks = Arcade.fresh('career', list, 5), run = Arcade.start('career', {rounds:picks.length, lives:3});
+      const names = [...list.map(c => c.player), ...Store.col('players').map(p => p.name)];
+      const round = () => {
+        if (Arcade.over(run)) return finish();
+        const c = picks[run.i], every = 4, secs = every * c.clubs.length + 6; let shown = 1, done = false, tries = 0;
+        box.innerHTML = Arcade.hud(run) + `<div class="arc-timer"><i id="arcT"></i></div><p class="small muted">Escudos estilizados (não oficiais), só com as iniciais dos clubes.</p><div class="crests" id="cc"></div><div id="ans"></div><div id="rv"></div>`;
+        const draw = () => { U.$('#cc', box).innerHTML = c.clubs.map((k,i) => (i ? '<span class="arrow">›</span>' : '') + GameKit.crest(k.n, k.c, i >= shown)).join(''); };
+        const settle = ok => { if (done) return; done = true; tm.stop(); const frac = 1 - (shown - 1) / Math.max(1, c.clubs.length); shown = c.clubs.length; draw();
+          if (ok) Arcade.hit(run, Math.round(run.maxPerRound * (.25 + .75 * frac) * (mode === 'craque' ? 1.3 : 1)), U.$('#ans', box)); else Arcade.miss(run, U.$('#ans', box));
+          run.log.push(c.player); run.i++; U.$$('#ans button, #ans input', box).forEach(x => x.disabled = true);
+          Arcade.reveal(U.$('#rv', box), ok, `<b>${U.esc(c.player)}</b><div class="small muted">${U.esc(c.vascoNote||'')} ${badge(c.status)}</div>`, round, Arcade.over(run) ? 'Ver resultado' : 'Próximo ▶'); };
+        const tm = Arcade.timer(U.$('#arcT', box), secs, {onTick:(l, el) => { const s = Math.min(c.clubs.length, 1 + Math.floor(el / 1000 / every)); if (s !== shown && !done) { shown = s; draw(); } }, onEnd:() => settle(false)});
+        if (mode === 'craque') {
+          U.$('#ans', box).innerHTML = `<div class="field"><label for="ci">Que jogador fez essa trajetória?</label><input class="in" id="ci" placeholder="Nome do jogador"></div><button class="btn red" id="cs">Responder</button><p id="cm" class="small" role="status"></p>`;
+          const inp = U.$('#ci', box); Arcade.suggest(inp, names, 3);
+          const go = () => { if (done) return; const v = inp.value.trim(); if (!v) return; if (U.answerMatches(v, [c.player, ...(c.aliases||[])])) return settle(true);
+            tries++; inp.value = ''; Arcade.shake(inp); if (tries >= 3) return settle(false); shown = Math.min(c.clubs.length, shown + 1); draw(); U.$('#cm', box).textContent = `Não é ${v}. ${3 - tries} chute(s).`; };
+          U.$('#cs', box).onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+        } else {
+          const pool = [...list.map(x => ({name:x.player, pos:''})), ...Store.col('players').map(p => ({name:p.name, pos:''}))];
+          const opts = U.shuffle([c.player, ...Arcade.decoys({name:c.player}, pool, 3, () => '')]);
+          Arcade.choices(U.$('#ans', box), opts, (i, b, btns) => { const ok = opts[i] === c.player; Arcade.lock(btns, opts.indexOf(c.player), i); settle(ok); });
+        }
+        draw();
+      };
+      const finish = () => Arcade.result(box, run, {title: run.lives ? 'Trajetórias completas' : 'Fim das vidas', detail:`${mode}: ${run.hits}/${run.marks.length} trajetórias`, extra:`<p class="small muted" style="margin-top:6px">${run.log.map(U.esc).join(' · ')}</p>`, again:() => this.play(box, mode)});
+      round();
+    }},
+
+  /* 5 — QUIZ VASCAÍNO */
+  quiz:{ n:5, desc:'60 segundos contra o relógio, morte súbita ou clássico com 10 perguntas.', pitch:'Responda o máximo que puder. Acertos seguidos multiplicam os pontos (×2 a partir de 3, ×3 a partir de 6).', tags:['contra o relógio','morte súbita','sequência ×2 ×3'],
+    VAL:{facil:10, medio:15, dificil:20, insano:30},
+    render(box){ Arcade.menu(box, 'quiz', [['relogio','60 segundos','Todas as dificuldades, o máximo que conseguir'], ['morte','Morte súbita','Fica cada vez mais difícil. Errou, acabou.'], ['classico','Clássico','10 perguntas de um nível, com explicação']], mode => mode === 'classico' ? this.levels(box) : this.play(box, mode)); },
+    levels(box){ GameKit.levels(box, [['facil','Fácil','10 pts por acerto'],['medio','Médio','15 pts por acerto'],['dificil','Difícil','20 pts por acerto'],['insano','Insano','30 pts por acerto']], lvl => this.play(box, 'classico', lvl), 'Escolha o nível'); },
+    play(box, mode, lvl){
+      const all = Store.col('quiz').filter(q => (q.opts||[]).length === 4 && q.a >= 0 && q.a <= 3);
+      const order = ['facil','medio','dificil','insano'];
+      let qs;
+      if (mode === 'classico') { const pool = all.filter(q => q.level === lvl); if (pool.length < 4) { box.innerHTML = UI.empty('Poucas perguntas neste nível', 'Cadastre mais perguntas no painel.'); return; } qs = Arcade.fresh('quiz' + lvl, pool, 10, q => q.id || q.q); }
+      else if (mode === 'morte') qs = order.flatMap(l => U.shuffle(all.filter(q => q.level === l)));
+      else qs = U.shuffle(all);
+      if (qs.length < 4) { box.innerHTML = UI.empty('Poucas perguntas', 'Cadastre mais perguntas no painel.'); return; }
+      const run = Arcade.start('quiz', {rounds:qs.length, lives: mode === 'morte' ? 1 : 0, max:30});
+      const wrongs = []; let clock = null, ended = false;
+      box.innerHTML = (mode === 'relogio' ? `<div class="arc-timer"><i id="arcT"></i></div>` : '') + '<div id="qarea"></div>';
+      const area = U.$('#qarea', box);
+      if (mode === 'relogio') clock = Arcade.timer(U.$('#arcT', box), 60, {onTick:l => { const c = U.$('#qclk', box); if (c) c.textContent = Math.ceil(l * 60) + 's'; }, onEnd:() => fin()});
+      const fin = () => { if (ended) return; ended = true; if (clock) clock.stop();
+        if (mode === 'classico' && run.hits === qs.length && qs.length >= 10) Profile.medal('quiz10');
+        if (run.bestCombo >= 5) Profile.medal('streak5'); if (mode === 'classico' && lvl === 'insano' && run.hits / run.marks.length >= .7) Profile.medal('insano');
+        const title = mode === 'relogio' ? `${run.hits} acertos em 60 segundos` : mode === 'morte' ? `Morte súbita: ${run.hits} seguidas` : `Nível ${lvl}: ${run.hits} de ${qs.length}`;
+        Arcade.result(box, run, {title, detail:title, max: mode === 'classico' ? qs.length * this.VAL[lvl] * 2.2 : 600, extra: wrongs.length ? `<details style="text-align:left;margin-top:10px"><summary class="small" style="cursor:pointer">Revisar o que você errou (${wrongs.length})</summary>${wrongs.map(w => `<div class="note"><b>${U.esc(w.q)}</b><br>Resposta: ${U.esc(w.opts[w.a])}${w.exp ? ` — ${U.esc(w.exp)}` : ''}</div>`).join('')}</details>` : '', again:() => mode === 'classico' ? this.play(box, 'classico', lvl) : this.play(box, mode)}); };
+      const show = () => {
+        if (ended) return; if (run.i >= qs.length || (mode === 'morte' && run.lives <= 0)) return fin();
+        const q = qs[run.i], ord = U.shuffle([0,1,2,3]);
+        const lvlTxt = {facil:'Fácil', medio:'Médio', dificil:'Difícil', insano:'Insano'}[q.level] || '';
+        area.innerHTML = Arcade.hud(run, mode === 'relogio' ? `<span class="small muted" id="qclk">${clock ? Math.ceil(clock.left() * 60) : 60}s</span>` : `<span class="small muted">${U.esc(lvlTxt)}${q.cat ? ' · ' + U.esc(q.cat) : ''}</span>`) + (mode === 'classico' ? `<div class="progress" style="margin-bottom:14px"><i style="width:${run.i / qs.length * 100}%"></i></div>` : '') + `<h3 style="margin-bottom:14px;font-size:24px">${U.esc(q.q)}</h3><div id="qo"></div><div id="qf"></div>`;
+        Arcade.choices(U.$('#qo', area), ord.map(k => q.opts[k]), (i, b, btns) => {
+          if (ended) return;
+          const ok = ord[i] === q.a; Arcade.lock(btns, ord.indexOf(q.a), i);
+          if (ok) { Arcade.hit(run, this.VAL[q.level] || 10, b); run.marks[run.marks.length - 1] = 'perfect'; } else { Arcade.miss(run, b, mode === 'morte'); wrongs.push(q); }
+          run.i++;
+          if (mode === 'relogio') return setTimeout(show, ok ? 350 : 900);
+          if (mode === 'morte' && !ok) { U.$('#qf', box).innerHTML = `<div class="note red"><b>Errou!</b> ${U.esc(q.exp||'')}</div>`; return setTimeout(fin, 1400); }
+          U.$('#qf', box).innerHTML = `<div class="note ${ok ? '' : 'red'}" style="margin-top:12px"><b>${ok ? 'Certo!' : 'Errado.'}</b> ${U.esc(q.exp||'')}</div><button class="btn red" id="qn">${run.i < qs.length ? 'Próxima pergunta ▶' : 'Ver resultado'}</button>`;
+          U.$('#qn', box).onclick = show; Arcade.keys(box, e => { if (e.key === 'Enter') { const n = U.$('#qn', box); if (n) n.click(); } });
+        });
+      };
+      show();
+    }},
+
+  /* 6 — MONTE A ESCALAÇÃO */
+  lineup:{ n:6, desc:'Monte no campo a escalação de um time histórico. Arraste ou toque para posicionar.', pitch:'Monte no campo o time histórico. Cada titular certo pontua, e na posição certa vale mais. Tem relógio: quanto mais rápido, melhor.', tags:['contra o relógio','nota de 0 a 10'],
+    render(box){
+      const list = Store.col('lineups'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma escalação cadastrada', 'Cadastre no painel.'); return; }
+      box.innerHTML = `<p class="lead" style="margin-bottom:12px">${U.esc(this.pitch)}</p><div class="grid g3">${list.map(l => { const r = (Profile.current().lineupBest || {})[l.id]; return `<button class="card click" style="text-align:left" data-id="${l.id}"><h3>Monte o Vasco de ${l.year}</h3><p class="small muted">${U.esc(l.label)}</p><div class="row" style="margin-top:6px">${badge(l.status)}${r != null ? `<span class="small muted">Sua melhor nota: <b>${r}</b></span>` : ''}</div></button>`; }).join('')}</div>`;
+      U.$$('[data-id]', box).forEach(b => b.onclick = () => this.play(box, U.byId(list, b.dataset.id)));
+    },
+    play(box, l){
+      const run = Arcade.start('lineup', {rounds:11, lives:0, max:100}), correct = l.players.map(p => p.name), posOf = n => (l.players.find(p => p.name === n)||{}).pos;
+      const pool = U.shuffle([...correct, ...(l.bench||[]).slice(0,3), ...(l.decoys||[])]);
+      const st = {formation:'4-4-2', slots:Array(11).fill(null), sel:null}; let t0 = Date.now(), tick;
+      box.innerHTML = `<div class="arc-hud"><span>${U.esc(l.label)}</span><span class="small muted" style="flex:1">Toque em um nome e depois em uma posição (ou arraste).</span><span class="arc-score"><b id="lclock">0:00</b></span></div>
+        <div class="grid g2"><div><div class="filters" style="margin-top:0"><select class="in" id="lf" aria-label="Formação">${Object.keys(FORMATIONS).map(f => `<option>${f}</option>`).join('')}</select><button class="btn" id="lclr">Limpar campo</button></div><div class="pitch" id="lp"></div></div>
+        <div><h3 style="margin-bottom:8px">Jogadores disponíveis <span class="small muted" id="lcount">0/11</span></h3><div class="pool" id="lpool"></div><div class="row" style="margin-top:16px"><button class="btn red" id="lchk">Conferir escalação</button><button class="btn ghost" id="lres">Ver reservas da partida</button></div><div id="lend"></div></div></div>`;
+      tick = setInterval(() => { const el = U.$('#lclock', box); if (!el || run.settle.settled) return clearInterval(tick); const s = Math.floor((Date.now() - t0) / 1000); el.textContent = Math.floor(s/60) + ':' + String(s % 60).padStart(2,'0'); }, 500);
+      const pitch = U.$('#lp', box);
+      const draw = (check) => {
+        const f = FORMATIONS[st.formation];
+        pitch.innerHTML = PITCH_LINES + f.map((s,i) => { const n = st.slots[i]; let cls = n ? 'filled' : ''; if (check && n) cls += correct.includes(n) ? ' right' : ' wrong'; if (st.sel && st.sel.slot === i) cls += ' sel';
+          return `<div class="slot ${cls}" data-i="${i}" style="left:${s.x}%;top:${s.y}%"><div class="dot">${s.pos}</div><div class="nm">${n ? U.esc(n) : '—'}</div></div>`; }).join('');
+        U.$('#lpool', box).innerHTML = pool.map(n => `<button class="pchip ${st.slots.includes(n)?'used':''} ${st.sel && st.sel.name === n ? 'sel' : ''}" draggable="true" data-n="${U.esc(n)}">${U.esc(n)}</button>`).join('');
+        U.$('#lcount', box).textContent = st.slots.filter(Boolean).length + '/11';
+        if (check) return;
+        U.$$('.slot', pitch).forEach(el => { const i = +el.dataset.i;
+          el.onclick = () => { if (run.settle.settled) return; if (st.sel && st.sel.name) { const prev = st.slots.indexOf(st.sel.name); if (prev >= 0) st.slots[prev] = st.slots[i]; st.slots[i] = st.sel.name; st.sel = null; }
+            else if (st.sel && st.sel.slot !== undefined) { if (st.sel.slot === i && st.slots[i]) { st.slots[i] = null; } else { [st.slots[i], st.slots[st.sel.slot]] = [st.slots[st.sel.slot], st.slots[i]]; } st.sel = null; }
+            else if (st.slots[i]) st.sel = {slot:i}; draw(); };
+          el.ondragover = e => { e.preventDefault(); el.classList.add('drop'); }; el.ondragleave = () => el.classList.remove('drop');
+          el.ondrop = e => { e.preventDefault(); const n = e.dataTransfer.getData('text/plain'); if (!n || run.settle.settled) return; const prev = st.slots.indexOf(n); if (prev >= 0) st.slots[prev] = st.slots[i]; st.slots[i] = n; st.sel = null; draw(); }; });
+        U.$$('.pchip', box).forEach(c => { c.onclick = () => { if (run.settle.settled) return; st.sel = st.sel && st.sel.name === c.dataset.n ? null : {name:c.dataset.n}; draw(); }; c.ondragstart = e => e.dataTransfer.setData('text/plain', c.dataset.n); });
+      };
+      U.$('#lf', box).onchange = e => { st.formation = e.target.value; draw(); };
+      U.$('#lclr', box).onclick = () => { if (run.settle.settled) return; st.slots.fill(null); st.sel = null; draw(); };
+      U.$('#lres', box).onclick = () => UI.modal({title:'Reservas da partida', body: (l.bench||[]).length ? `<div class="row">${l.bench.map(n => `<span class="chip">${U.esc(n)}</span>`).join('')}</div><p class="small muted" style="margin-top:10px">Fonte: ${U.esc(l.source)}</p>` : '<p class="muted">Banco de reservas não cadastrado para este jogo.</p>'});
+      U.$('#lchk', box).onclick = async () => { if (run.settle.settled) return; const filled = st.slots.filter(Boolean).length;
+        if (filled < 11 && !await UI.confirm(`Você posicionou ${filled} de 11 jogadores. Conferir mesmo assim?`, {ok:'Conferir', danger:false})) return;
+        clearInterval(tick); const f = FORMATIONS[st.formation], secs = (Date.now() - t0) / 1000;
+        st.slots.forEach((n,i) => { if (n && correct.includes(n)) { run.hits++; run.marks.push(posOf(n) === f[i].pos ? 'perfect' : 'hit'); } else run.marks.push('miss'); });
+        const inXI = st.slots.filter(n => n && correct.includes(n)).length, exact = st.slots.filter((n,i) => n && posOf(n) === f[i].pos).length;
+        const grade = Math.round(((inXI * .75 + exact * .25) / 11) * 100) / 10, speed = grade >= 5 ? Math.max(0, Math.round(30 - secs / 4)) : 0;
+        run.score = Math.round(grade * 10) + speed; let streak = 0; run.marks.forEach(m => { streak = m === 'miss' ? 0 : streak + 1; run.bestCombo = Math.max(run.bestCombo, streak); });
+        const p = Profile.current(); p.lineupBest = p.lineupBest || {}; p.lineupBest[l.id] = Math.max(p.lineupBest[l.id] || 0, grade);
+        if (grade >= 10) Profile.medal('lineup10');
+        draw(true); U.$$('#lchk,#lclr,#lf', box).forEach(x => x.disabled = true);
+        Arcade.result(U.$('#lend', box), run, {title:`Nota ${grade.toFixed(1)} / 10`, detail:`${l.label}: nota ${grade.toFixed(1)}`, max:130, extra:`<p class="muted">${inXI}/11 titulares certos · ${exact} na posição exata${speed ? ` · bônus de rapidez +${speed}` : ''} (${U.esc(l.formation)} na partida)</p><div class="card" style="text-align:left;margin-top:10px"><h3>Escalação correta</h3><div class="lineup-list" style="margin-top:8px">${l.players.map(pp => `<div class="lp"><span class="pos">${pp.pos}</span>${U.esc(pp.name)}</div>`).join('')}</div><p class="small muted" style="margin-top:8px">Técnico: ${U.esc(l.coach)} · ${U.esc(l.source)} ${badge(l.status)}</p></div>`, again:() => this.render(box)}); };
+      draw();
+    }},
+
+  /* 7 — COMPLETE O ELENCO */
+  complete:{ n:7, desc:'Uma equipe histórica com nomes ocultos. Preencha as lacunas, com sugestões ao digitar.', pitch:'Um time histórico com nomes escondidos. Preencha as lacunas: as sugestões ajudam com a grafia.', tags:['sugestões ao digitar','acertos seguidos valem mais'],
+    render(box){ Arcade.menu(box, 'complete', [['facil','3 lacunas','Para aquecer'], ['medio','5 lacunas','Para quem conhece'], ['dificil','7 lacunas','Só para enciclopédias']], lvl => this.play(box, lvl)); },
+    play(box, lvl){
+      const list = Store.col('lineups'); if (!list.length) { box.innerHTML = UI.empty('Nenhuma escalação cadastrada', 'Cadastre no painel.'); return; }
+      const l = Arcade.fresh('complete', list, 1)[0], k = {facil:3, medio:5, dificil:7}[lvl] || 3, hidden = new Set(U.shuffle(l.players.map((_,i) => i)).slice(0, k)), run = Arcade.start('complete', {rounds:k, lives:0, max:Math.round(100 / k * 2)});
       const alias = n => { const p = Store.col('players').find(x => U.norm(x.name) === U.norm(n) || (x.aliases||[]).some(a => U.norm(a) === U.norm(n))); return [n, ...(p ? [p.name, ...(p.aliases||[])] : [])]; };
-      box.innerHTML = `<div class="scorebar"><span>${U.esc(l.label)}</span><span>${k} nomes ocultos</span><span class="small muted">Cada acerto vale ${Math.round(100/k)} pts</span></div><div class="lineup-list">${l.players.map((p,i) => `<div class="lp"><span class="pos">${p.pos}</span>${hidden.has(i) ? `<input class="in" data-i="${i}" placeholder="Quem jogou aqui?" autocomplete="off" style="min-height:40px;padding:8px 10px">` : `<span>${U.esc(p.name)}</span>`}</div>`).join('')}</div><button class="btn red" id="cok" style="margin-top:14px">Conferir</button><div id="cend"></div>`;
-      U.$('#cok', box).onclick = () => { if (round.settled) return; let hits = 0;
-        U.$$('input[data-i]', box).forEach(inp => { const p = l.players[+inp.dataset.i], ok = U.answerMatches(inp.value, alias(p.name)); if (ok) hits++; inp.disabled = true; inp.classList.toggle('bad', !ok); inp.insertAdjacentHTML('afterend', `<span class="small" style="margin-left:8px;color:var(--${ok?'ok':'err'})">${ok?'✓':'✗'} ${U.esc(p.name)}</span>`); });
-        const pts = Math.round(hits * 100 / k); Score.award(round, 'complete', pts, `${l.label}: ${hits}/${k}`); U.$('#cok', box).disabled = true;
-        GameKit.finish(U.$('#cend', box), {title:`${hits} de ${k} acertos`, points:pts, lines:`<p class="small muted" style="text-align:center">Fonte: ${U.esc(l.source)} ${badge(l.status)}</p>`, again:() => Games.complete.render(box)}); };
-    };
-    GameKit.levels(box, [['facil','Fácil','3 nomes ocultos'],['medio','Médio','5 nomes ocultos'],['dificil','Difícil','7 nomes ocultos']], pick);
-  }},
+      const names = [...Store.col('players').map(p => p.name), ...Store.col('lineups').flatMap(x => x.players.map(p => p.name))];
+      box.innerHTML = `<div class="arc-hud"><span>${U.esc(l.label)}</span><span class="small muted" style="flex:1">${k} nomes ocultos</span>${badge(l.status)}</div><div class="lineup-list">${l.players.map((p,i) => `<div class="lp"><span class="pos">${p.pos}</span>${hidden.has(i) ? `<div style="flex:1"><input class="in" data-i="${i}" placeholder="Quem jogou aqui?" style="min-height:40px;padding:8px 10px"></div>` : `<span>${U.esc(p.name)}</span>`}</div>`).join('')}</div><button class="btn red" id="cok" style="margin-top:14px">Conferir</button><div id="cend"></div>`;
+      U.$$('input[data-i]', box).forEach(inp => Arcade.suggest(inp, names, 2));
+      U.$('#cok', box).onclick = () => { if (run.settle.settled) return;
+        U.$$('input[data-i]', box).forEach(inp => { const p = l.players[+inp.dataset.i], ok = U.answerMatches(inp.value, alias(p.name)); inp.disabled = true; inp.classList.toggle('bad', !ok);
+          if (ok) Arcade.hit(run, Math.round(100 / k)); else Arcade.miss(run, null, false);
+          inp.insertAdjacentHTML('afterend', `<span class="small" style="color:var(--${ok ? 'ok' : 'err'})">${ok ? '✓' : '✗'} ${U.esc(p.name)}</span>`); });
+        U.$('#cok', box).disabled = true;
+        Arcade.result(U.$('#cend', box), run, {title:`${run.hits} de ${k} acertos`, detail:`${l.label}: ${run.hits}/${k}`, max:Math.round(100 / k) * k * 2, extra:`<p class="small muted">Fonte: ${U.esc(l.source)} ${badge(l.status)}</p>`, again:() => this.play(box, lvl)}); };
+    }},
 
-  together:{ n:8, desc:'Dois atletas, uma pergunta: eles atuaram juntos pelo Vasco?', render(box){
-    const ps = Store.col('players').filter(p => (p.spans||[]).length); if (ps.length < 4) { box.innerHTML = UI.empty('Poucos atletas', 'Cadastre fichas com períodos no clube.'); return; }
-    const lus = Store.col('lineups');
-    const truth = (a, b) => { const lu = lus.find(l => [a,b].every(p => l.players.some(x => U.answerMatches(x.name, [p.name, ...(p.aliases||[])])))); if (lu) return {yes:true, why:`Confirmado: titulares juntos em ${lu.label}.`, sure:true};
-      const ov = U.yearsOverlap(a.spans, b.spans); return ov ? {yes:true, why:`Os períodos no clube se cruzam em ${ov[0]===ov[1]?ov[0]:ov[0]+'–'+ov[1]} (verificação por temporada, não por jogo).`, sure:false} : {yes:false, why:`Períodos sem interseção: ${a.name} (${U.spanText(a.spans)}) e ${b.name} (${U.spanText(b.spans)}).`, sure:true}; };
-    const pairs = []; const all = []; for (let i=0;i<ps.length;i++) for (let j=i+1;j<ps.length;j++) all.push([ps[i], ps[j]]);
-    const yes = U.shuffle(all.filter(([a,b]) => truth(a,b).yes)), no = U.shuffle(all.filter(([a,b]) => !truth(a,b).yes));
-    for (let k=0;k<5;k++) { const src = (k % 2 === 0 ? yes : no).length ? (k % 2 === 0 ? yes : no) : (yes.length ? yes : no); pairs.push(src.shift()); }
-    const qs = U.shuffle(pairs.filter(Boolean)), round = {}; let i = 0, hits = 0;
-    const show = () => { const [a,b] = qs[i], t = truth(a,b);
-      box.innerHTML = `<div class="scorebar"><span>Rodada <b>${i+1}</b>/${qs.length}</span><span>Acertos <b>${hits}</b></span><span class="small muted">20 pts por acerto</span></div><div class="grid g2" style="margin-bottom:14px"><div class="card" style="text-align:center"><span class="avatar" style="width:56px;height:56px;font-size:26px;margin:0 auto 8px">${U.esc(U.initials(a.name))}</span><h3>${U.esc(a.name)}</h3><p class="small muted">${U.esc(a.pos)}</p></div><div class="card" style="text-align:center"><span class="avatar" style="width:56px;height:56px;font-size:26px;margin:0 auto 8px;background:#fff;color:#000">${U.esc(U.initials(b.name))}</span><h3>${U.esc(b.name)}</h3><p class="small muted">${U.esc(b.pos)}</p></div></div><h3 style="text-align:center;margin-bottom:12px">Eles jogaram juntos pelo Vasco?</h3><div class="grid g2"><button class="opt" data-a="1" style="text-align:center">Sim, jogaram juntos</button><button class="opt" data-a="0" style="text-align:center">Não</button></div><div id="tf"></div>`;
-      let done = false; U.$$('.opt', box).forEach(btn => btn.onclick = () => { if (done) return; done = true; const ok = (btn.dataset.a === '1') === t.yes; if (ok) hits++; btn.classList.add(ok ? 'right' : 'wrong'); U.$$('.opt', box).forEach(x => x.disabled = true);
-        U.$('#tf', box).innerHTML = `<div class="note ${ok?'':'red'}" style="margin-top:12px"><b>${ok?'Certo!':'Errado.'}</b> ${U.esc(t.why)} ${t.sure ? '' : 'Status: aproximação baseada em anos.'}</div><button class="btn red" id="tn">${i+1 < qs.length ? 'Próxima dupla' : 'Ver resultado'}</button>`;
-        U.$('#tn', box).onclick = () => { i++; i < qs.length ? show() : fin(); }; }); };
-    const fin = () => { const pts = hits * 20; if (!Score.award(round, 'together', pts, `${hits}/${qs.length} duplas`)) return; box.innerHTML = ''; GameKit.finish(box, {title:`${hits} de ${qs.length} acertos`, points:pts, extra:'<p class="small muted">Verificação: mesma escalação cadastrada (confirmado) ou sobreposição dos anos no clube (aproximação).</p>', again:() => Games.together.render(box)}); };
-    show();
-  }}
+  /* 8 — QUEM JOGOU COM QUEM? */
+  together:{ n:8, desc:'Dupla na tela, poucos segundos: jogaram juntos pelo Vasco ou não? Responda rápido.', pitch:'Duas lendas na tela e poucos segundos para decidir: jogaram juntas pelo Vasco? Use as setas ← → no computador.', tags:['8 duplas','3 vidas','7 s por dupla','sequência ×2 ×3'],
+    render(box){ Arcade.menu(box, 'together', [['rapido','Valendo','8 duplas, 7 segundos cada']], () => this.play(box)); },
+    play(box){
+      const ps = Store.col('players').filter(p => (p.spans||[]).length); if (ps.length < 4) { box.innerHTML = UI.empty('Poucos atletas', 'Cadastre fichas com períodos no clube.'); return; }
+      const lus = Store.col('lineups');
+      const truth = (a, b) => { const lu = lus.find(l => [a,b].every(p => l.players.some(x => U.answerMatches(x.name, [p.name, ...(p.aliases||[])])))); if (lu) return {yes:true, why:`Titulares juntos em ${lu.label}.`, sure:true};
+        const ov = U.yearsOverlap(a.spans, b.spans); return ov ? {yes:true, why:`Os períodos no clube se cruzam em ${ov[0] === ov[1] ? ov[0] : ov[0] + '–' + ov[1]} (aproximação por temporada).`, sure:false} : {yes:false, why:`${a.name}: ${U.spanText(a.spans)} · ${b.name}: ${U.spanText(b.spans)}.`, sure:true}; };
+      const all = []; for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) all.push([ps[i], ps[j]]);
+      const yes = U.shuffle(all.filter(([a,b]) => truth(a,b).yes)), no = U.shuffle(all.filter(([a,b]) => !truth(a,b).yes)), pairs = [];
+      for (let k = 0; k < 8; k++) { const src = (k % 2 === 0 ? yes : no).length ? (k % 2 === 0 ? yes : no) : (yes.length ? yes : no); if (src.length) pairs.push(src.shift()); }
+      const qs = U.shuffle(pairs), run = Arcade.start('together', {rounds:qs.length, lives:3, max:60});
+      const face = (p, inv) => `<div class="card" style="text-align:center"><span class="avatar" style="width:60px;height:60px;font-size:26px;margin:0 auto 8px;${inv ? 'background:var(--panel2);color:var(--white);border:1px solid var(--line)' : ''}">${U.esc(U.initials(p.name))}</span><h3>${U.esc(p.name)}</h3><p class="small muted">${U.esc(p.pos)}</p></div>`;
+      const round = () => {
+        if (Arcade.over(run)) return finish();
+        const [a, b] = qs[run.i], t = truth(a, b); let done = false;
+        box.innerHTML = Arcade.hud(run) + `<div class="arc-timer"><i id="arcT"></i></div><div class="arc-pair">${face(a)}<span class="vs">&amp;</span>${face(b, true)}</div><h3 style="text-align:center;margin-bottom:12px">Jogaram juntos pelo Vasco?</h3><div class="arc-yn"><button class="opt" data-a="0">← Nunca juntos</button><button class="opt" data-a="1">Jogaram juntos →</button></div><div id="rv"></div>`;
+        const btns = U.$$('.arc-yn .opt', box);
+        const answer = v => { if (done) return; done = true; tm.stop(); const ok = v !== null && (v === 1) === t.yes; btns.forEach(x => x.disabled = true);
+          const picked = v === null ? null : btns[v === 1 ? 1 : 0]; if (picked) picked.classList.add(ok ? 'right' : 'wrong'); if (!ok) btns[t.yes ? 1 : 0].classList.add('right');
+          if (ok) Arcade.hit(run, Math.round(run.maxPerRound * (.4 + .6 * tm.left())), picked); else Arcade.miss(run, picked || btns[0]);
+          run.i++; Arcade.reveal(U.$('#rv', box), ok, `${v === null ? 'Tempo esgotado! ' : ok ? 'Certo! ' : 'Errado. '}${t.yes ? 'Jogaram juntos' : 'Nunca jogaram juntos'}<div class="small muted">${U.esc(t.why)}</div>`, round, Arcade.over(run) ? 'Ver resultado' : 'Próxima dupla ▶'); };
+        btns.forEach(x => x.onclick = () => answer(+x.dataset.a));
+        Arcade.keys(box, e => { if (done) { if (e.key === 'Enter') { const n = U.$('[data-next]', box); if (n) n.click(); } return; } if (e.key === 'ArrowLeft') answer(0); else if (e.key === 'ArrowRight') answer(1); });
+        const tm = Arcade.timer(U.$('#arcT', box), 7, {onEnd:() => answer(null)});
+      };
+      const finish = () => Arcade.result(box, run, {title: run.lives ? 'Todas as duplas' : 'Fim das vidas', detail:`${run.hits}/${run.marks.length} duplas`, extra:'<p class="small muted" style="margin-top:6px">Verificação: mesma escalação cadastrada (confirmado) ou anos no clube que se cruzam (aproximação).</p>', again:() => this.play(box)});
+      round();
+    }}
 };
 const FORMATIONS = {
   '4-4-2':[{pos:'GOL',x:50,y:91},{pos:'LD',x:84,y:72},{pos:'ZAG',x:62,y:77},{pos:'ZAG',x:38,y:77},{pos:'LE',x:16,y:72},{pos:'VOL',x:62,y:56},{pos:'VOL',x:38,y:56},{pos:'MEI',x:78,y:38},{pos:'MEI',x:22,y:38},{pos:'ATA',x:62,y:16},{pos:'ATA',x:38,y:16}],
@@ -2043,7 +2346,8 @@ const PITCH_LINES = `<svg class="lines" viewBox="0 0 68 100" preserveAspectRatio
 Pages.games = { title:'Game Center', render(v, param){
   if (param && Games[param]) { const body = GameKit.header(v, param); Games[param].render(body); return; }
   const p = Profile.current();
-  v.innerHTML = `<p class="lead">Oito jogos com regras, pontuação e recordes salvos. Tudo funciona offline depois de carregado.</p><div class="grid gauto" style="margin-top:16px">${Object.entries(Games).map(([id,g]) => `<div class="card gamecard" data-g="${id}" role="button" tabindex="0"><div class="art">${CROSS(62)}<span class="num">${g.n}</span></div><div class="body"><div class="spread"><h3>${GAME_NAMES[id]}</h3><button class="icon-btn" data-fav="${id}" aria-label="Favoritar" style="width:34px;height:34px;color:${p.favGames.includes(id)?'var(--warn)':'var(--muted)'}">${ICO('star',18)}</button></div><p class="small muted">${g.desc}</p><p class="rec">Recorde: <b>${p.records[id] ?? '—'}</b> · ${p.plays[id]||0} partida(s)</p></div></div>`).join('')}</div>`;
+  const total = Object.keys(Games).reduce((s, id) => s + (p.plays[id] || 0), 0);
+  v.innerHTML = `<p class="lead">Oito jogos rápidos sobre o Vasco: rodadas curtas, vidas, relógio e sequências que multiplicam os pontos. Bata seus recordes e desafie os amigos.</p>${total ? `<p class="small muted" style="margin-top:6px">Você já jogou <b>${total}</b> partida(s) · ${Object.keys(Games).filter(id => p.plays[id]).length} de 8 jogos experimentados.</p>` : ''}<div class="grid gauto" style="margin-top:16px">${Object.entries(Games).map(([id,g]) => `<div class="card gamecard" data-g="${id}" role="button" tabindex="0"><div class="art">${CROSS(62)}<span class="num">${g.n}</span></div><div class="body"><div class="spread"><h3>${GAME_NAMES[id]}</h3><button class="icon-btn" data-fav="${id}" aria-label="Favoritar" style="width:34px;height:34px;color:${p.favGames.includes(id)?'var(--warn)':'var(--muted)'}">${ICO('star',18)}</button></div><p class="small muted">${g.desc}</p>${(g.tags||[]).length ? `<div class="arc-rules">${g.tags.slice(0,3).map(t => `<span>${U.esc(t)}</span>`).join('')}</div>` : ''}<p class="rec">Recorde: <b>${p.records[id] ?? '—'}</b> · ${p.plays[id]||0} partida(s)</p></div></div>`).join('')}</div>`;
   U.$$('[data-g]', v).forEach(c => { c.onclick = e => { if (e.target.closest('[data-fav]')) return; Router.go('games', c.dataset.g); }; c.onkeydown = e => { if (e.key === 'Enter') Router.go('games', c.dataset.g); }; });
   U.$$('[data-fav]', v).forEach(b => b.onclick = () => { const g = b.dataset.fav; p.favGames = p.favGames.includes(g) ? p.favGames.filter(x => x !== g) : [...p.favGames, g]; Store.save(); UI.toast(p.favGames.includes(g) ? 'Jogo adicionado aos favoritos.' : 'Jogo removido dos favoritos.'); Router.render(); });
 }};

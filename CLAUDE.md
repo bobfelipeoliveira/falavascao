@@ -35,8 +35,12 @@ explique em linguagem simples e peça confirmação antes de mudanças grandes.
 ## Arquitetura do JS (módulos no mesmo arquivo)
 `U` utilidades/escape · `Hash` senhas · `Store` persistência · `UI` modais/toasts · `Profile`/`Score` pontuação ·
 `Auth` · `Chart` SVG · `Matches` · `Shell`/`Router` (hash `#/rota/param`) · `Pages.*` telas ·
-`Encyclopedia` · `Compare` · `Feeds` RSS · `Daily` · `GameKit`/`Games.*` (player, match, year, career, quiz,
-lineup, complete, together) · `FORMATIONS` · `MARKET`/`Manager` (modo gestor) · `SCHEMA`/`Admin` (CRUD genérico
+`Encyclopedia` · `Compare` · `Feeds` RSS · `Daily` · `GameKit`/`Arcade`/`Games.*` (player, match, year, career, quiz,
+lineup, complete, together). `Arcade` é o motor comum dos jogos: partidas em rodadas, vidas, combo (×2 com 3
+acertos seguidos, ×3 com 6), relógio por rodada, sorteio sem repetir (`Arcade.fresh`), sugestões ao digitar,
+atalhos de teclado (1–4, ←/→, Enter), som opcional (`falavascao:sound`, desligado por padrão) e tela de
+resultado com estrelas, recorde e "Desafiar um amigo". A pontuação continua só por `Score.award` (1×/partida).
+Desafios só usam dados cadastrados com fonte; o jogo de ano ignora títulos com campos "Pendente" · `FORMATIONS` · `MARKET`/`Manager` (modo gestor) · `SCHEMA`/`Admin` (CRUD genérico
 orientado a esquema) · `Skin`/`SKINS` · `Countdown` · boot. Banco inicial em `SEED`.
 
 ## Regras de conteúdo (inegociáveis)

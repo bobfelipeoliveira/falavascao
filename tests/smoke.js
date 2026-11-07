@@ -28,39 +28,69 @@ const txt = () => $('#view').textContent;
   w.eval('Auth.logout()'); await sleep(20);
   await w.eval(`Auth.login('ana','errada').catch(e=>window.__le=e.message)`); assert(w.__le === 'Login ou senha incorretos.', 'login incorreto tratado');
   await w.eval(`Auth.login('ana','Forte#1')`); assert(w.eval('!!Auth.user()'), 'login correto');
-  // quiz
-  await go('#/games/quiz'); $('[data-k="facil"]').click(); await sleep(10);
-  while ($('#qn') || $$('.opt').length) { const o = $$('.opt'); if (!o.length || o[0].disabled && !$('#qn')) break; o[0].click(); o[0].click(); if (!$('#qn')) break; $('#qn').click(); await sleep(5); if ($('[data-again]')) break; }
+  // ---- Game Center (motor Arcade: rodadas, vidas, combo, relógio, resultado) ----
+  const resultShown = () => !!$('.arc-result');
+  const playOut = async (max = 60) => { for (let k = 0; k < max && !resultShown(); k++) { const o = $$('.arc-opt, .arc-yn .opt').filter(b => !b.disabled); if (o.length) o[0].click(); else { const y = $('#ycrav'); if (y && !y.disabled) y.click(); } await sleep(3); const n = $('[data-next]'); if (n && !n.disabled) { n.click(); await sleep(3); } } };
+  const quizRight = () => { const q = w.eval(`Store.col('quiz')`).find(x => x.q === $('#qarea h3').textContent); return $$('.arc-opt').find(b => b.textContent.slice(1) === q.opts[q.a]); };
+  // quiz clássico (fácil), acertando tudo: sequência multiplica os pontos
+  await go('#/games/quiz'); assert(!!$('.arc-go') && !!$('#arcSnd'), 'jogo abre com botão "Jogar agora" e opção de som');
+  $('[data-k="classico"]').click(); await sleep(10); $('[data-k="facil"]').click(); await sleep(10);
+  let sawCombo = false;
+  for (let k = 0; k < 12 && !resultShown(); k++) { const r = quizRight(); r.click(); r.click(); await sleep(3); if ($('.arc-combo')) sawCombo = true; const n = $('#qn'); if (n) { n.click(); await sleep(3); } }
   let p = w.eval('Profile.current()'); assert(p.plays.quiz === 1 && p.history.length === 1, 'quiz pontua uma única vez: ' + p.points);
-  const ptsAfterQuiz = p.points; const again = $('[data-again]'); assert(!!again, 'botão jogar novamente');
-  // jogador borrado
-  await go('#/games/player'); $('[data-k="medio"]').click(); await sleep(10);
-  for (let i=0;i<5;i++) { $('#gi').value = 'zzzz'; $('#gs').click(); await sleep(5); }
-  p = w.eval('Profile.current()'); assert(p.plays.player === 1, 'jogador borrado encerra após 5 erros');
-  await go('#/games/player'); $('[data-k="facil"]').click(); await sleep(10);
-  const ans = w.eval(`(()=>{const n=document.querySelector('#pf svg, #pf img'); return null})()`);
-  // match
-  await go('#/games/match'); $('[data-k="opcoes"]').click(); await sleep(10); $('#mh').click(); $$('#mo .opt')[0].click(); $$('#mo .opt')[1].click(); await sleep(10);
-  p = w.eval('Profile.current()'); assert(p.plays.match === 1, 'partida misteriosa registrada uma vez');
-  await go('#/games/match'); $('[data-k="ano"]').click(); await sleep(10); for (let i=0;i<3;i++){ $('#mi').value='1900'; $('#ms').click(); } await sleep(10); assert(w.eval('Profile.current()').plays.match === 2, 'modo ano encerra após 3 erros');
-  // year
-  await go('#/games/year'); $('[data-k="facil"]').click(); await sleep(10); $$('#yo .opt').forEach(b => b.click()); await sleep(10); assert(w.eval('Profile.current()').plays.year === 1, 'de que ano registrado');
-  // career correct
-  await go('#/games/career'); await sleep(10); const player = w.eval(`Store.col('careers').find(c => document.querySelector('#cc').innerHTML && true) && null`);
-  for (const c of w.eval(`Store.col('careers').map(c=>c.player)`)) { if (w.eval('Profile.current()').plays.career) break; $('#ci').value = c; $('#cs').click(); await sleep(5); }
+  assert(sawCombo && p.points > 100, 'acertos seguidos ativam o multiplicador (×2/×3): ' + p.points + ' pts');
+  assert(p.medals.includes('quiz10') && p.medals.includes('streak5'), 'medalhas Gabarito e Sequência de 5');
+  assert(!!$('[data-again]') && !!$('[data-share]') && $$('.arc-stars .on').length === 3, 'resultado com 3 estrelas, jogar de novo e desafiar amigo');
+  $('[data-share]').click(); await sleep(20); assert(($('.modal-bg textarea') || {}).value && $('.modal-bg textarea').value.includes('Duvido você fazer mais'), 'desafiar um amigo gera texto para compartilhar');
+  $('.modal-bg [data-x]').click();
+  // quiz morte súbita: um erro encerra
+  await go('#/games/quiz'); $('[data-k="morte"]').click(); await sleep(10);
+  { const q = w.eval(`Store.col('quiz')`).find(x => x.q === $('#qarea h3').textContent); $$('.arc-opt').find(b => b.textContent.slice(1) !== q.opts[q.a]).click(); }
+  await sleep(1600); assert(resultShown() && w.eval('Profile.current()').plays.quiz === 2, 'morte súbita termina no primeiro erro');
+  // quiz 60 segundos: relógio corre e respostas avançam sozinhas
+  await go('#/games/quiz'); $('[data-k="relogio"]').click(); await sleep(10);
+  const q1 = $('#qarea h3').textContent; $$('.arc-opt')[0].click(); await sleep(1000);
+  assert($('#qarea h3') && $('#qarea h3').textContent !== q1 && /^\d+s$/.test($('#qclk').textContent) && parseFloat($('#arcT').style.width) < 100, 'contra o relógio: próxima pergunta automática e relógio correndo');
+  // quem é esse jogador (rápido): 3 vidas, rodadas até o fim
+  await go('#/games/player'); $('[data-k="rapido"]').click(); await sleep(10);
+  assert(!!$('#arcT') && $$('.arc-lives .on').length === 3 && $$('.arc-opt').length === 4 && $$('.clue.locked').length === 4, 'rodada com relógio, 3 vidas, 4 alternativas e pistas bloqueadas');
+  await playOut(); p = w.eval('Profile.current()'); assert(resultShown() && p.plays.player === 1, 'quem é esse jogador: partida em rodadas registrada uma vez');
+  // modo craque: digitando; sugestões só depois do 2º erro
+  await go('#/games/player'); $('[data-k="craque"]').click(); await sleep(10);
+  const typ = async v => { const i = $('#gi'); i.value = v; i.dispatchEvent(new w.Event('input')); await sleep(3); };
+  await typ('Rom'); assert(!$('.arc-sug button'), 'craque: sem sugestões no início');
+  for (let k = 0; k < 2; k++) { await typ('zzzz'); $('#gs').click(); await sleep(3); }
+  await typ('Rom'); assert(!!$('.arc-sug button'), 'craque: sugestões liberadas após 2 erros');
+  // adivinhe a partida
+  await go('#/games/match'); $('[data-k="opcoes"]').click(); await sleep(10); await playOut();
+  assert(w.eval('Profile.current()').plays.match === 1, 'partida misteriosa registrada uma vez');
+  await go('#/games/match'); $('[data-k="ano"]').click(); await sleep(10); assert(!!$('#ycrav') && !!$('input[type=range]'), 'modo ano usa o seletor de ano');
+  await playOut(); assert(w.eval('Profile.current()').plays.match === 2, 'modo ano completo');
+  // de que ano é esse Vasco
+  await go('#/games/year'); $('[data-k="facil"]').click(); await sleep(10);
+  $('[data-d="10"]').click(); $('[data-d="1"]').click(); assert($('#yv').textContent === '1971', 'botões −10/−1/+1/+10 ajustam o ano');
+  await playOut(); assert(w.eval('Profile.current()').plays.year === 1, 'de que ano registrado');
+  assert(w.eval('[Arcade.yearScore(0), Arcade.yearScore(-2), Arcade.yearScore(10)].join()') === '1,0.4,0', 'pontuação por proximidade do ano');
+  // já vestiu a camisa
+  await go('#/games/career'); $('[data-k="rapido"]').click(); await sleep(10); assert($$('.crest.hidden').length > 0, 'escudos começam escondidos'); await playOut();
   assert(w.eval('Profile.current()').plays.career === 1, 'carreira pelos escudos registrada');
   // lineup perfect
   await go('#/games/lineup'); $('[data-id="l1998"]').click(); await sleep(10);
   const L = w.eval(`Store.col('lineups').find(l=>l.id==='l1998').players`);
   for (let i=0;i<11;i++) { const chip = $$('.pchip').find(c => c.dataset.n === L[i].name); chip.click(); await sleep(2); $$('.slot')[i].click(); await sleep(2); }
   $('#lchk').click(); await sleep(20); assert(txt().includes('Nota 10.0'), 'escalação perfeita = nota 10');
-  assert(w.eval('Profile.current()').medals.includes('lineup10'), 'medalha prancheta perfeita');
+  assert(w.eval('Profile.current()').medals.includes('lineup10') && w.eval('Profile.current().lineupBest.l1998') === 10, 'medalha prancheta perfeita e melhor nota salva');
   // complete
-  await go('#/games/complete'); $('[data-k="facil"]').click(); await sleep(10); const lu = $('.scorebar span').textContent;
+  await go('#/games/complete'); $('[data-k="facil"]').click(); await sleep(10); const lu = $('.arc-hud span').textContent;
   const list = w.eval(`Store.col('lineups')`).find(l => l.label === lu); $$('input[data-i]').forEach(i => i.value = list.players[+i.dataset.i].name); $('#cok').click(); await sleep(10);
   assert(txt().includes('3 de 3 acertos'), 'complete o elenco: acertos contados');
-  // together
-  await go('#/games/together'); for (let i=0;i<5;i++){ $$('.opt')[0].click(); $('#tn').click(); await sleep(3); } assert(w.eval('Profile.current()').plays.together === 1, 'quem jogou com quem registrado');
+  // quem jogou com quem: setas do teclado respondem
+  await go('#/games/together'); $('[data-k="rapido"]').click(); await sleep(10);
+  d.dispatchEvent(new w.KeyboardEvent('keydown', {key:'ArrowRight', bubbles:true})); await sleep(5);
+  assert(!!$('[data-next]') && $$('.arc-yn .opt').every(b => b.disabled), 'seta → responde "jogaram juntos"');
+  await playOut(); assert(w.eval('Profile.current()').plays.together === 1, 'quem jogou com quem registrado');
+  // sem repetir desafios recentes
+  assert(w.eval(`(()=>{ const L=[...Array(10)].map((_,i)=>({id:'x'+i})); const a=Arcade.fresh('t',L,5).map(x=>x.id), b=Arcade.fresh('t',L,5).map(x=>x.id); return a.every(x=>!b.includes(x)); })()`), 'sorteio não repete os desafios da partida anterior');
   // daily
   await go('#/inicio'); $$('#dailyBox .opt')[0].click(); await sleep(10); const pd = w.eval('Profile.current()'); assert(Object.keys(pd.daily).length === 1, 'desafio diário registrado');
   $$('#dailyBox .opt').forEach(b => b.click()); assert(w.eval('Profile.current()').plays.daily === 1, 'desafio diário não duplica');
