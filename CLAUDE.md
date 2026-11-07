@@ -63,8 +63,9 @@ orientado a esquema) · `Skin`/`SKINS` · `Countdown` · boot. Banco inicial em 
 
 ## Próximos passos (roadmap combinado)
 1. ~~Publicar no GitHub Pages~~ (feito).
-2. Supabase: ~~tabelas + RLS, Auth, conteúdo e perfil~~ (feito na v1.2). Falta: SMTP próprio para e-mails
-   de confirmação (o SMTP padrão do Supabase só envia para a equipe do projeto), ligar `manager_teams`,
+2. Supabase: ~~tabelas + RLS, Auth, conteúdo e perfil~~ (feito na v1.2). ~~SMTP próprio~~ (feito: Gmail
+   `falavascao.site@gmail.com` com senha de app, configurado só no painel do Supabase; modelos em português em
+   `supabase/emails/`, testado com cadastro real em 07/11/2026). Falta: ligar `manager_teams`,
    ranking global opt-in (exige pontuação validada no servidor) e MFA opcional na tela de perfil.
 3. Robô de notícias: Supabase Edge Function lendo RSS (Netvasco `https://www.netvasco.com.br/news/rss.xml`,
    Google Notícias "Vasco", YouTube de fontes jornalísticas) a cada 10 min via Supabase Cron; grava só
