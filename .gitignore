@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.*
+*.local
+backup*.json
+falavascao-backup-*.json
+meus-dados-*.json
