@@ -1,4 +1,12 @@
-# FALA, VASCÃO! — A casa digital do vascaíno (v1.0)
+# FALA, VASCÃO! — A casa digital do vascaíno (v1.2)
+
+## Modo online (Supabase) — novo na v1.2
+- Contas reais pelo **Supabase Auth**: cadastro com confirmação por e-mail, login por e-mail, recuperação por link e exclusão da própria conta.
+- O conteúdo (notícias, títulos, jogadores, quiz…) vem do banco online e aparece igual para todos; só administradores editam.
+- Pontos, medalhas e histórico ficam no perfil online e acompanham o torcedor em qualquer aparelho.
+- **Administrador** não é mais "a primeira conta": é definido só pelo Editor SQL do Supabase (fim de `supabase/schema.sql`).
+- Sem internet, o site abre com a última cópia guardada no navegador.
+- Estrutura do banco e regras de acesso (RLS): `supabase/schema.sql`. A chave usada no site é a **publicável**; a chave secreta nunca entra no código.
 
 ## Como abrir
 1. Baixe `index.html` e abra com dois cliques (Chrome, Edge, Firefox ou Safari). Não precisa de instalação, servidor nem internet — só as fontes tipográficas e os links externos usam conexão.

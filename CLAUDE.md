@@ -8,9 +8,16 @@ Plataforma de fãs do Club de Regatas Vasco da Gama: enciclopédia histórica, n
 Idioma da interface e das respostas ao dono: **português do Brasil**. O dono não é programador:
 explique em linguagem simples e peça confirmação antes de mudanças grandes.
 
-## Estado atual (v1.1)
+## Estado atual (v1.2)
 - Tudo em `index.html` (HTML + CSS + JS puro, sem build). Abre direto no navegador.
-- Persistência em `localStorage` (chave `falavascao:db`). Login é DEMONSTRATIVO (PBKDF2 no cliente).
+- Publicado em https://bobfelipeoliveira.github.io/falavascao/ (repositório público `bobfelipeoliveira/falavascao`).
+  O dono publica pelo GitHub Desktop (Commit to main → Push origin); a pasta local já é um repositório Git.
+- **Modo online (Supabase)**: projeto `zrjlmwpcslaglophkonk`. Módulo `Cloud` (fetch puro, sem biblioteca) faz
+  login/cadastro/recuperação pelo Supabase Auth, lê o conteúdo das tabelas `content`/`site_settings` e grava
+  o progresso em `profiles`. Estrutura e RLS em `supabase/schema.sql`. Admin = linha na tabela `admins`
+  (só via SQL Editor). Sem `fetch` (testes jsdom) ou sem conexão → cai no modo local.
+- `localStorage` (chave `falavascao:db`) segue como cache offline; no modo local o login é DEMONSTRATIVO.
+- Gestões salvas do modo gestor ainda ficam só no navegador (tabela `manager_teams` já existe, falta ligar).
 - 4 visuais (skins) via `data-skin` no `<html>`: classico, app, game, editorial. Tema claro/escuro via `data-theme`.
 - Dados atuais: snapshot de 06/11/2026 (Netvasco). Hospedagem planejada: GitHub Pages.
 
@@ -44,9 +51,10 @@ orientado a esquema) · `Skin`/`SKINS` · `Countdown` · boot. Banco inicial em 
 - Referências: OWASP Top 10, OWASP API Top 10, CWE, LGPD.
 
 ## Próximos passos (roadmap combinado)
-1. Publicar no GitHub Pages (Settings › Pages › branch `main`, pasta raiz).
-2. Supabase: criar tabelas espelhando as coleções do `SEED` + RLS; migrar `Store` para ler/gravar no Supabase
-   mantendo fallback local quando offline.
+1. ~~Publicar no GitHub Pages~~ (feito).
+2. Supabase: ~~tabelas + RLS, Auth, conteúdo e perfil~~ (feito na v1.2). Falta: SMTP próprio para e-mails
+   de confirmação (o SMTP padrão do Supabase só envia para a equipe do projeto), ligar `manager_teams`,
+   ranking global opt-in (exige pontuação validada no servidor) e MFA opcional na tela de perfil.
 3. Robô de notícias: Supabase Edge Function lendo RSS (Netvasco `https://www.netvasco.com.br/news/rss.xml`,
    Google Notícias "Vasco", YouTube de fontes jornalísticas) a cada 10 min via Supabase Cron; grava só
    título/fonte/data/link, deduplica por URL; allowlist de domínios, timeout e limite de tamanho.
@@ -56,4 +64,5 @@ orientado a esquema) · `Skin`/`SKINS` · `Countdown` · boot. Banco inicial em 
 
 ## Como testar
 `npm install` e depois `npm test` (jsdom: navegação, cadastro, os 8 jogos, gestor, admin, XSS, persistência,
-4 visuais). Rode os testes depois de qualquer mudança e corrija falhas antes de concluir.
+4 visuais; `tests/cloud.js` simula o Supabase e as regras RLS, sem acessar a internet).
+No Windows do dono o Node fica fora do PATH desta sessão: use `npm.cmd` após recarregar o PATH da máquina. Rode os testes depois de qualquer mudança e corrija falhas antes de concluir.

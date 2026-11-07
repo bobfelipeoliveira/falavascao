@@ -424,7 +424,7 @@ td.wrap{white-space:normal;min-width:220px}
    UI (modais/toasts) · Auth · Score · Router · Pages · Games · Manager · Admin
    Integrações futuras (Supabase) marcadas com "FUTURO:".
    ===================================================================== */
-const APP = {version:'1.0.0', dataVersion:1, storeKey:'falavascao:db', sessionKey:'falavascao:session', dataDate:'2026-11-06'};
+const APP = {version:'1.2.0', dataVersion:1, storeKey:'falavascao:db', sessionKey:'falavascao:session', dataDate:'2026-11-06'};
 
 /* ---------------- U: utilidades ---------------- */
 const U = {
@@ -551,14 +551,17 @@ const Store = {
   fresh(){ const s = U.clone(SEED); return Object.assign(s, {v:APP.dataVersion, created:new Date().toISOString(), users:[], guest:Profile.blank('Convidado'), teams:[], log:[]}); },
   migrate(){ const s = SEED; for (const k of Object.keys(s)) if (!(k in this.db)) this.db[k] = U.clone(s[k]); },
   save(silent){
+    if (typeof Cloud !== 'undefined' && Cloud.on && Auth.user() && Auth.user().cloud) Cloud.queueProfile();
     if (this.memoryOnly) return false;
     try { localStorage.setItem(APP.storeKey, JSON.stringify(this.db)); return true; }
     catch(e){ if (!silent) UI.toast('Não foi possível salvar: o armazenamento do navegador está cheio ou bloqueado. Faça um backup no painel.', 'err'); this.memoryOnly = !this.probe(); return false; }
   },
   probe(){ try { localStorage.setItem('fv:probe','1'); localStorage.removeItem('fv:probe'); return true; } catch(e){ return false; } },
   col(name){ if (!Array.isArray(this.db[name])) this.db[name] = []; return this.db[name]; },
-  upsert(name, obj){ const c = this.col(name); if (!obj.id) obj.id = U.uid(name.slice(0,3)); const i = c.findIndex(x => x.id === obj.id); if (i >= 0) c[i] = obj; else c.unshift(obj); this.save(); return obj; },
-  remove(name, id){ const c = this.col(name); const i = c.findIndex(x => x.id === id); if (i >= 0) { c.splice(i,1); this.save(); return true; } return false; }
+  upsert(name, obj){ const c = this.col(name); if (!obj.id) obj.id = U.uid(name.slice(0,3)); const i = c.findIndex(x => x.id === obj.id);
+    if (i >= 0) c[i] = obj; else { if (typeof obj._order !== 'number') obj._order = Math.min(0, ...c.map(x => typeof x._order === 'number' ? x._order : 0)) - 1; c.unshift(obj); }
+    this.save(); if (Cloud.writes(name)) Cloud.pushRow(name, obj).catch(Cloud.fail); return obj; },
+  remove(name, id){ const c = this.col(name); const i = c.findIndex(x => x.id === id); if (i >= 0) { c.splice(i,1); this.save(); if (Cloud.writes(name)) Cloud.delRow(name, id).catch(Cloud.fail); return true; } return false; }
 };
 
 /* ---------------- UI: toasts, modais, confirmações, loaders ---------------- */
@@ -635,10 +638,13 @@ const Auth = {
   user(){ return this._user; },
   isAdmin(){ return !!(this._user && this._user.role === 'admin'); },
   restore(){
+    if (Cloud.on) return; // no modo online a sessão é carregada de forma assíncrona por Cloud.start()
     try { const s = JSON.parse(localStorage.getItem(APP.sessionKey) || 'null'); if (s && s.exp > Date.now()) this._user = Store.db.users.find(u => u.id === s.uid) || null; } catch(e){}
   },
-  setSession(u){ this._user = u; try { localStorage.setItem(APP.sessionKey, JSON.stringify({uid:u.id, exp:Date.now() + 7*864e5})); } catch(e){} },
-  logout(){ this._user = null; try { localStorage.removeItem(APP.sessionKey); } catch(e){} Shell.refreshUser(); UI.toast('Você saiu da sua conta.'); Router.go('inicio'); },
+  setSession(u){ this._user = u; if (u && u.cloud) return; try { localStorage.setItem(APP.sessionKey, JSON.stringify({uid:u.id, exp:Date.now() + 7*864e5})); } catch(e){} },
+  logout(){ const wasCloud = !!(this._user && this._user.cloud); this._user = null; try { localStorage.removeItem(APP.sessionKey); } catch(e){}
+    if (wasCloud || Cloud.on) Cloud.signOut();
+    Shell.renderNav(); Shell.refreshUser(); UI.toast('Você saiu da sua conta.'); Router.go('inicio'); },
   validatePassword(p){
     const errs = [];
     if (p.length < 6) errs.push('mínimo de 6 caracteres');
@@ -648,12 +654,12 @@ const Auth = {
   },
   validateRegistration(f){
     const e = {};
-    if (f.name.trim().split(/\s+/).length < 2) e.name = 'Informe nome e sobrenome.';
+    if (!Cloud.on && f.name.trim().split(/\s+/).length < 2) e.name = 'Informe nome e sobrenome.';
     if (!f.birth) e.birth = 'Informe a data de nascimento.';
     else { const age = (Date.now() - new Date(f.birth).getTime()) / 31557600000; if (isNaN(age) || age < 0 || age > 120) e.birth = 'Data inválida.'; else if (age < 13) e.birth = 'Cadastro disponível a partir de 13 anos (LGPD, art. 14 — exige consentimento dos responsáveis).'; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email)) e.email = 'E-mail inválido.';
     if (!/^[a-zA-Z0-9_.]{3,20}$/.test(f.login)) e.login = 'Use 3 a 20 caracteres: letras, números, ponto ou sublinhado.';
-    else if (Store.db.users.some(u => u.login.toLowerCase() === f.login.toLowerCase() && (!f.editingId || u.id !== f.editingId))) e.login = 'Este login já existe neste navegador.';
+    else if (!Cloud.on && Store.db.users.some(u => u.login.toLowerCase() === f.login.toLowerCase() && (!f.editingId || u.id !== f.editingId))) e.login = 'Este login já existe neste navegador.';
     if (!f.editingId || f.password) {
       const pe = this.validatePassword(f.password); if (pe.length) e.password = 'A senha precisa de: ' + pe.join(', ') + '.';
       if (f.password !== f.password2) e.password2 = 'As senhas não conferem.';
@@ -663,6 +669,11 @@ const Auth = {
     return e;
   },
   async register(f){
+    if (Cloud.on) { // conta real no Supabase Auth; data de nascimento só é usada para conferir a idade e não é enviada
+      const hasSession = await Cloud.signUp(f.email.trim().toLowerCase(), f.password, {login:f.login.trim(), favs:f.favs.map(s => s.trim()).filter(Boolean).slice(0,3)});
+      if (!hasSession) return {pending:true, email:f.email.trim().toLowerCase()};
+      const u = await Cloud.loadUser(); this.setSession(u); return u;
+    }
     const isFirst = Store.db.users.length === 0;
     const u = {id:U.uid('usr'), name:f.name.trim(), birth:f.birth, email:f.email.trim().toLowerCase(), login:f.login.trim(), pass:await Hash.make(f.password), role:isFirst?'admin':'torcedor', created:new Date().toISOString(), profile:Profile.blank(f.login.trim())};
     u.profile.favPlayers = f.favs.map(s => s.trim()).filter(Boolean).slice(0,3);
@@ -670,10 +681,165 @@ const Auth = {
   },
   async login(login, password){
     if (Date.now() < this.lockUntil) throw new Error(`Muitas tentativas. Aguarde ${Math.ceil((this.lockUntil-Date.now())/1000)} s.`);
+    if (Cloud.on) {
+      try { await Cloud.signIn(String(login).trim().toLowerCase(), password); }
+      catch(e) { this.fails++; if (this.fails >= 5) { this.lockUntil = Date.now() + 30000; this.fails = 0; } throw e; }
+      this.fails = 0; const u = await Cloud.loadUser(); this.setSession(u); return u;
+    }
     const u = Store.db.users.find(x => x.login.toLowerCase() === String(login).trim().toLowerCase());
     const ok = u ? await Hash.verify(password, u.pass) : (await Hash.make(password), false); // tempo similar p/ login inexistente
     if (!ok) { this.fails++; if (this.fails >= 5) { this.lockUntil = Date.now() + 30000; this.fails = 0; } throw new Error('Login ou senha incorretos.'); }
     this.fails = 0; this.setSession(u); return u;
+  }
+};
+
+/* ---------------- Cloud: Supabase (Auth + PostgreSQL com RLS) ----------------
+   Cliente mínimo com fetch, sem bibliotecas externas (menos risco de cadeia de suprimentos,
+   CSP inalterada). Aqui fica SÓ a chave PUBLICÁVEL, feita para o navegador; quem garante a
+   segurança são as políticas RLS do banco (supabase/schema.sql). A chave secreta nunca entra no site.
+   Sem fetch (ex.: testes com jsdom) → o site segue no modo local demonstrativo. */
+const CLOUD_CFG = {url:'https://zrjlmwpcslaglophkonk.supabase.co', key:'sb_publishable_RiPi4b86637qfUE5WO-s2w__d-Cc8yl'};
+const Cloud = {
+  on:false, session:null, sessKey:'falavascao:sb', _timer:null, _failShown:0,
+  COLS:['news','history','titles','presidents','players','seasons','matches','lineups','quiz','mysteries','careers','photos','videos','sources'],
+  enabled(){ return typeof window.fetch === 'function' && /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(CLOUD_CFG.url) && /^sb_publishable_|^eyJ/.test(CLOUD_CFG.key); },
+  writes(col){ return this.on && Auth.isAdmin() && this.COLS.includes(col); },
+  fail(e){ const c = Cloud; if (Date.now() - c._failShown < 4000) return; c._failShown = Date.now(); UI.toast('Não foi salvo no banco online: ' + (e && e.message || 'erro desconhecido'), 'err', 6000); },
+  home(){ return /^https?:$/.test(location.protocol) ? location.origin + location.pathname : ''; },
+  redirectQS(){ const h = this.home(); return h ? '?redirect_to=' + encodeURIComponent(h) : ''; },
+  msg(status, d){
+    const code = String(d && (d.error_code || d.code || d.error) || ''), text = String(d && (d.msg || d.message || d.error_description) || '');
+    if (code === 'invalid_credentials' || code === 'invalid_grant' || /invalid login credentials/i.test(text)) return 'E-mail ou senha incorretos.';
+    if (code === 'email_not_confirmed' || /not confirmed/i.test(text)) return 'Confirme seu e-mail antes de entrar: abra o link que enviamos para sua caixa de entrada.';
+    if (code === 'user_already_exists' || /already registered/i.test(text)) return 'Este e-mail já tem conta. Use "Entrar" ou "Recuperar acesso".';
+    if (code === 'weak_password' || /password/i.test(code)) return 'Senha fraca. Use pelo menos 6 caracteres, com letra maiúscula e número.';
+    if (status === 429 || /rate_limit/.test(code)) return 'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.';
+    if (code === '23505') return 'Esse valor já está em uso (por exemplo, o login escolhido).';
+    if (code === '42501' || status === 401 || status === 403) return 'Sem permissão para esta ação. Entre de novo na sua conta.';
+    if (code === 'validation_failed' || code === 'email_address_invalid') return 'E-mail inválido.';
+    return 'Erro no servidor (código ' + status + '). Tente novamente.';
+  },
+  async req(path, {method='GET', body, auth=true, headers={}, timeout=15000}={}){
+    if (auth && this.session) await this.ensureFresh();
+    const h = Object.assign({apikey:CLOUD_CFG.key, 'Content-Type':'application/json'}, headers);
+    if (auth && this.session) h.Authorization = 'Bearer ' + this.session.access_token;
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null, t = ctl && setTimeout(() => ctl.abort(), timeout);
+    let res;
+    try { res = await fetch(CLOUD_CFG.url + path, {method, headers:h, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl ? ctl.signal : undefined, credentials:'omit', cache:'no-store', referrerPolicy:'no-referrer'}); }
+    catch(e) { throw new Error(e && e.name === 'AbortError' ? 'O servidor demorou para responder. Tente de novo.' : 'Sem conexão com o servidor. Verifique sua internet.'); }
+    finally { t && clearTimeout(t); }
+    const txt = await res.text(); let data = null; if (txt) { try { data = JSON.parse(txt); } catch(e) { data = null; } }
+    if (!res.ok) { const err = new Error(this.msg(res.status, data)); err.status = res.status; err.code = String(data && (data.code || data.error_code || data.error) || ''); throw err; }
+    return data;
+  },
+  /* ---- sessão ---- */
+  okTok(s){ return !!(s && typeof s.access_token === 'string' && /^[\w-]+\.[\w-]+\.[\w-]+$/.test(s.access_token) && typeof s.refresh_token === 'string' && /^[\w-]{6,200}$/.test(s.refresh_token)); },
+  readSession(){ try { const s = JSON.parse(localStorage.getItem(this.sessKey) || 'null'); return this.okTok(s) ? s : null; } catch(e) { return null; } },
+  saveSession(s){ this.session = this.okTok(s) ? s : null; try { this.session ? localStorage.setItem(this.sessKey, JSON.stringify(this.session)) : localStorage.removeItem(this.sessKey); } catch(e){} },
+  fromToken(d){ return d && d.access_token ? {access_token:d.access_token, refresh_token:d.refresh_token, expires_at: d.expires_at ? d.expires_at * 1000 : Date.now() + (d.expires_in || 3600) * 1000} : null; },
+  async ensureFresh(){
+    const s = this.session; if (!s || s.expires_at - Date.now() > 60000) return;
+    if (!this._refreshing) this._refreshing = (async () => {
+      try { this.saveSession(this.fromToken(await this.req('/auth/v1/token?grant_type=refresh_token', {method:'POST', auth:false, body:{refresh_token:s.refresh_token}}))); }
+      catch(e) { if (e.status && e.status < 500) this.saveSession(null); }
+      finally { this._refreshing = null; } })();
+    return this._refreshing;
+  },
+  /** Lê o retorno dos links de e-mail do Supabase (#access_token=…&type=signup|recovery) e limpa a barra de endereço. */
+  readHashTokens(){
+    const h = location.hash.replace(/^#\/?/, ''); if (!/(^|&)(access_token|error|error_code)=/.test(h)) return null;
+    const p = new URLSearchParams(h); history.replaceState(null, '', location.pathname + location.search + '#/perfil');
+    if (p.get('error') || p.get('error_code')) return {error:true};
+    const s = {access_token:p.get('access_token'), refresh_token:p.get('refresh_token'), expires_at:(+p.get('expires_at') || 0) * 1000 || Date.now() + (+p.get('expires_in') || 3600) * 1000};
+    if (!this.okTok(s)) return {error:true};
+    this.saveSession(s); return {type:String(p.get('type') || '')};
+  },
+  /* ---- autenticação ---- */
+  async signUp(email, password, meta){ const d = await this.req('/auth/v1/signup' + this.redirectQS(), {method:'POST', auth:false, body:{email, password, data:meta}}); const s = this.fromToken(d); if (s) this.saveSession(s); return !!this.session; },
+  async signIn(email, password){ this.saveSession(this.fromToken(await this.req('/auth/v1/token?grant_type=password', {method:'POST', auth:false, body:{email, password}}))); if (!this.session) throw new Error('Resposta inesperada do servidor.'); },
+  async signOut(){ const had = !!this.session; try { if (had) await this.req('/auth/v1/logout', {method:'POST'}); } catch(e){} this.saveSession(null); clearTimeout(this._timer); },
+  async recover(email){ await this.req('/auth/v1/recover' + this.redirectQS(), {method:'POST', auth:false, body:{email}}); },
+  async setPassword(password){ await this.req('/auth/v1/user', {method:'PUT', body:{password}}); },
+  async deleteAccount(){ await this.req('/rest/v1/rpc/delete_my_account', {method:'POST', body:{}}); this.saveSession(null); },
+  /* ---- perfil ---- */
+  progressOf(p){ return {points:p.points|0, records:p.records||{}, plays:p.plays||{}, medals:p.medals||[], history:(p.history||[]).slice(0,80), daily:p.daily||{}, reads:p.reads|0, favPlayers:(p.favPlayers||[]).slice(0,3), favGames:p.favGames||[]}; },
+  toUser(me, row, admin){
+    const pr = row.progress && typeof row.progress === 'object' ? row.progress : {}, obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : {}, arr = v => Array.isArray(v) ? v : [];
+    const profile = Object.assign(Profile.blank(row.display_name), {points:Math.max(0, +pr.points || 0), records:obj(pr.records), plays:obj(pr.plays), medals:arr(pr.medals).map(String), history:arr(pr.history), daily:obj(pr.daily), reads:+pr.reads || 0, favPlayers:arr(pr.favPlayers).map(String).slice(0,3), favGames:arr(pr.favGames).map(String), displayName:String(row.display_name)});
+    return {id:me.id, cloud:true, email:me.email || '', login:String(row.login), name:String(row.display_name), role: admin ? 'admin' : 'torcedor', created:row.created_at, profile};
+  },
+  async loadUser(){
+    if (!this.session) throw new Error('Sessão expirada. Entre novamente.');
+    const me = await this.req('/auth/v1/user'); if (!me || !me.id) throw new Error('Sessão inválida.');
+    const id = encodeURIComponent(me.id);
+    const [rows, adm] = await Promise.all([this.req(`/rest/v1/profiles?select=*&user_id=eq.${id}`), this.req(`/rest/v1/admins?select=user_id&user_id=eq.${id}`).catch(() => [])]);
+    const row = (rows && rows[0]) || await this.createProfile(me);
+    return this.toUser(me, row, Array.isArray(adm) && adm.length > 0);
+  },
+  async createProfile(me){
+    const meta = me.user_metadata || {}, g = Store.db.guest, carry = g.points > 0 || g.history.length > 0;
+    let base = String(meta.login || String(me.email || '').split('@')[0]).replace(/[^a-zA-Z0-9_.]/g, '').slice(0, 20); if (base.length < 3) base = (base + 'torcedor').slice(0, 8);
+    const progress = this.progressOf(Object.assign(Profile.blank(base), carry ? g : {}, {favPlayers:Array.isArray(meta.favs) ? meta.favs.map(String).slice(0,3) : []}));
+    for (let i = 0; i < 4; i++) {
+      const login = i ? base.slice(0, 15) + Math.floor(1000 + Math.random() * 9000) : base;
+      try { const r = await this.req('/rest/v1/profiles', {method:'POST', headers:{Prefer:'return=representation'}, body:{login, display_name:login, progress}});
+        if (carry) { Store.db.guest = Profile.blank('Convidado'); Store.save(); }
+        if (i) UI.toast(`O login “${base}” já existia. Seu login ficou “${login}”.`, 'warn', 6000);
+        return r[0]; }
+      catch(e) { if (e.code !== '23505') throw e; const again = await this.req(`/rest/v1/profiles?select=*&user_id=eq.${encodeURIComponent(me.id)}`); if (again && again[0]) return again[0]; }
+    }
+    throw new Error('Não foi possível criar o perfil.');
+  },
+  queueProfile(){ clearTimeout(this._timer); this._timer = setTimeout(() => this.saveProfile().catch(Cloud.fail), 1200); },
+  async saveProfile(){ const u = Auth.user(); if (!u || !u.cloud || !this.session) return;
+    await this.req(`/rest/v1/profiles?user_id=eq.${encodeURIComponent(u.id)}`, {method:'PATCH', headers:{Prefer:'return=minimal'}, body:{display_name:String(u.profile.displayName).slice(0,60), progress:this.progressOf(u.profile)}}); },
+  /* ---- conteúdo ---- */
+  /** Baixa o conteúdo publicado. Banco vazio → mantém o conteúdo local (SEED). Retorna true se algo mudou. */
+  async pull(){
+    const rows = [];
+    for (let from = 0; from < 50000; from += 1000) { const page = await this.req(`/rest/v1/content?select=collection,id,data&order=collection.asc,id.asc&limit=1000&offset=${from}`); if (!Array.isArray(page)) break; rows.push(...page); if (page.length < 1000) break; }
+    const sets = await this.req('/rest/v1/site_settings?select=key,data');
+    if (rows.length) {
+      const by = {}; this.COLS.forEach(c => by[c] = []);
+      rows.forEach(r => { if (by[r.collection] && r.data && typeof r.data === 'object' && !Array.isArray(r.data)) by[r.collection].push(Object.assign({}, r.data, {id:String(r.id)})); });
+      this.COLS.forEach(c => { Store.db[c] = by[c].sort((a,b) => (+a._order || 0) - (+b._order || 0)); });
+    }
+    (Array.isArray(sets) ? sets : []).forEach(s => {
+      if (s.key === 'meta' && s.data && typeof s.data === 'object' && !Array.isArray(s.data)) Store.db.meta = Object.assign({}, U.clone(SEED.meta), s.data);
+      if (s.key === 'curiosities' && Array.isArray(s.data)) Store.db.curiosities = s.data.filter(x => typeof x === 'string');
+    });
+    const changed = rows.length > 0 || (Array.isArray(sets) && sets.length > 0);
+    if (changed) Store.save(true);
+    return changed;
+  },
+  rowOf(col, o){ return {collection:col, id:String(o.id), data:o}; },
+  async pushRow(col, o){ await this.req('/rest/v1/content?on_conflict=collection,id', {method:'POST', headers:{Prefer:'resolution=merge-duplicates,return=minimal'}, body:[this.rowOf(col, o)]}); },
+  async delRow(col, id){ const r = await this.req(`/rest/v1/content?collection=eq.${encodeURIComponent(col)}&id=eq.${encodeURIComponent(id)}`, {method:'DELETE', headers:{Prefer:'return=representation'}}); if (!Array.isArray(r) || !r.length) throw new Error('o registro não foi encontrado no banco ou você não tem permissão.'); },
+  async pushSettings(){ await this.req('/rest/v1/site_settings?on_conflict=key', {method:'POST', headers:{Prefer:'resolution=merge-duplicates,return=minimal'}, body:[{key:'meta', data:Store.db.meta}, {key:'curiosities', data:Store.db.curiosities}]}); },
+  /** Envia TODO o conteúdo deste navegador ao banco (carga inicial, importação, restauração). prune = apaga do banco o que não existe aqui. */
+  async pushAll(prune){
+    if (!Auth.isAdmin()) throw new Error('ação restrita ao administrador.');
+    const rows = []; this.COLS.forEach(c => Store.col(c).forEach((o, i) => { if (!o.id) o.id = U.uid(c.slice(0,3)); if (typeof o._order !== 'number') o._order = i; rows.push(this.rowOf(c, o)); }));
+    for (let i = 0; i < rows.length; i += 100) await this.req('/rest/v1/content?on_conflict=collection,id', {method:'POST', headers:{Prefer:'resolution=merge-duplicates,return=minimal'}, body:rows.slice(i, i + 100)});
+    await this.pushSettings();
+    let removed = 0;
+    if (prune) { const keep = new Set(rows.map(r => r.collection + '\u0000' + r.id)), remote = [];
+      for (let from = 0; from < 50000; from += 1000) { const page = await this.req(`/rest/v1/content?select=collection,id&order=collection.asc,id.asc&limit=1000&offset=${from}`); if (!Array.isArray(page)) break; remote.push(...page); if (page.length < 1000) break; }
+      for (const r of remote) if (!keep.has(r.collection + '\u0000' + r.id)) { await this.delRow(r.collection, r.id); removed++; } }
+    Store.save(true); return {sent:rows.length, removed};
+  },
+  async listProfiles(){ return await this.req('/rest/v1/profiles?select=login,display_name,created_at,points:progress->points&order=created_at.asc&limit=1000') || []; },
+  /** Início assíncrono: baixa conteúdo e recupera a sessão sem travar a primeira tela. */
+  async start(tok){
+    if (!this.session) this.session = this.readSession();
+    if (tok && tok.error) UI.toast('O link recebido por e-mail é inválido ou expirou. Peça um novo.', 'err', 7000);
+    const content = this.pull().then(ch => { if (ch) { Shell.renderNav(); Router.render(); } }).catch(e => console.warn('Conteúdo online indisponível; usando a cópia deste navegador.', e && e.message));
+    const user = !this.session ? Promise.resolve() : this.loadUser().then(u => {
+      Auth.setSession(u); Shell.renderNav(); Shell.refreshUser(); Router.render();
+      if (tok && tok.type === 'recovery') Pages.perfil.newPassword();
+      else if (tok && (tok.type === 'signup' || tok.type === 'magiclink')) UI.toast('E-mail confirmado. Bem-vindo à Colina!');
+    }).catch(e => { if (e.status === 401 || e.status === 403) this.saveSession(null); UI.toast('Não foi possível carregar sua conta: ' + e.message, 'err', 6000); });
+    await Promise.all([content, user]);
   }
 };
 /* =====================================================================
@@ -982,7 +1148,7 @@ const Router = {
   render(){
     const {r, param} = this.parse();
     const page = Pages[r] || Pages.inicio;
-    if (page.admin && !Auth.isAdmin()) { U.$('#view').innerHTML = UI.empty('Área restrita', 'O painel administrativo exige login com conta de administrador local.', `<a class="btn red" href="#/perfil">Entrar</a>`); U.$('#pageTitle').textContent = 'Acesso restrito'; return; }
+    if (page.admin && !Auth.isAdmin()) { U.$('#view').innerHTML = UI.empty('Área restrita', Cloud.on ? 'O painel administrativo exige login com uma conta de administrador.' : 'O painel administrativo exige login com conta de administrador local.', `<a class="btn red" href="#/perfil">Entrar</a>`); U.$('#pageTitle').textContent = 'Acesso restrito'; return; }
     U.$('#pageTitle').textContent = page.title || 'FALA, VASCÃO!';
     document.title = (page.title ? page.title + ' — ' : '') + 'FALA, VASCÃO!';
     Shell.setActive(Pages[r] ? r : 'inicio');
@@ -1287,8 +1453,10 @@ Pages.memoria = { title:'Memória Vascaína', render(v){
 /* ---------------- Comunidade ---------------- */
 const medalSvg = on => `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M16 4h16l-4 12h-8z" fill="${on?'#d7141a':'#555'}"/><circle cx="24" cy="30" r="13" fill="${on?'#fff':'#333'}" stroke="${on?'#d7141a':'#555'}" stroke-width="3"/><path d="M24 22l2.4 5 5.4.6-4 3.7 1.1 5.3L24 34l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z" fill="${on?'#d7141a':'#666'}"/></svg>`;
 Pages.comunidade = { title:'Comunidade', render(v){
-  const users = Store.db.users.filter(u => u.profile.points > 0).sort((a,b) => b.profile.points - a.profile.points);
-  v.innerHTML = `<p class="lead">Nesta versão a comunidade é local: o ranking mostra apenas contas criadas neste navegador, com pontuações reais obtidas nos jogos. Nenhum usuário ou resultado é inventado.</p>
+  const users = (Cloud.on ? (Auth.user() ? [Auth.user()] : []) : Store.db.users).filter(u => u.profile.points > 0).sort((a,b) => b.profile.points - a.profile.points);
+  v.innerHTML = Cloud.on ? `<p class="lead">Sua conta e sua pontuação agora ficam guardadas no banco online e acompanham você em qualquer aparelho.</p>
+  <div class="note">O ranking global, com perfis públicos opcionais, chega numa próxima etapa. Por enquanto aparece só a sua pontuação.</div>
+  <h2 class="sec">Sua posição</h2>` : `<p class="lead">Nesta versão a comunidade é local: o ranking mostra apenas contas criadas neste navegador, com pontuações reais obtidas nos jogos. Nenhum usuário ou resultado é inventado.</p>
   <div class="note">Ranking global, perfis públicos e interação entre torcedores dependem da versão online (Supabase). A estrutura de dados já está preparada.</div>
   <h2 class="sec">Ranking local</h2>${users.length ? `<div class="tablewrap"><table><thead><tr><th>#</th><th>Torcedor</th><th>Nível</th><th>Pontos</th><th>Medalhas</th></tr></thead><tbody>${users.map((u,i) => `<tr><td><b>${i+1}</b></td><td>${U.esc(u.profile.displayName)}</td><td>${U.esc(Profile.level(u.profile.points).name)}</td><td><b>${u.profile.points}</b></td><td>${u.profile.medals.length}</td></tr>`).join('')}</tbody></table></div>` : UI.empty('Ranking vazio', 'Crie uma conta e jogue no Game Center para aparecer aqui.', '<a class="btn red" href="#/games">Ir para o Game Center</a>')}
   <h2 class="sec">Níveis</h2><div class="grid g3">${LEVELS.map((l,i) => `<div class="card"><div class="level"><span class="lv">${i+1}</span><div><h3>${l.name}</h3><p class="small muted">a partir de ${l.min.toLocaleString('pt-BR')} pontos</p></div></div></div>`).join('')}</div>
@@ -1300,40 +1468,51 @@ Pages.perfil = { title:'Meu perfil', render(v){ Auth.user() ? this.logged(v) : t
     const g = Store.db.guest;
     v.innerHTML = `<div class="grid g2"><div class="card"><div class="tabs"><button class="on" data-t="login">Entrar</button><button data-t="reg">Criar conta</button><button data-t="rec">Recuperar acesso</button></div><div id="af"></div></div>
     <div><div class="card"><div class="kicker">Jogando como convidado</div><h3>${g.points} pontos</h3><p class="small muted">Seu progresso fica salvo neste navegador. Ao criar uma conta, ele é transferido para ela.</p></div>
-    <div class="note red" style="margin-top:14px"><b>Aviso de segurança:</b> o login desta versão é apenas demonstrativo e funciona só neste navegador. As senhas são guardadas como hash PBKDF2 com sal, nunca em texto puro, mas isso não substitui autenticação em servidor. Não reutilize senhas importantes. Na versão online, o acesso será feito pelo Supabase Auth.</div>
-    <div class="note">A primeira conta criada neste navegador recebe o papel de <b>administrador local</b>, com acesso ao painel de conteúdo.</div></div></div>`;
+    ${Cloud.on ? `<div class="note" style="margin-top:14px">Sua conta fica protegida no servidor: a senha nunca é guardada no site, e o seu progresso acompanha você em qualquer aparelho. Guardamos só e-mail, apelido e pontuação. Não pedimos CPF, endereço ou telefone.</div>`
+    : `<div class="note red" style="margin-top:14px"><b>Aviso de segurança:</b> o login desta versão é apenas demonstrativo e funciona só neste navegador. As senhas são guardadas como hash PBKDF2 com sal, nunca em texto puro, mas isso não substitui autenticação em servidor. Não reutilize senhas importantes. Na versão online, o acesso será feito pelo Supabase Auth.</div>
+    <div class="note">A primeira conta criada neste navegador recebe o papel de <b>administrador local</b>, com acesso ao painel de conteúdo.</div>`}</div></div>`;
     const forms = {login:this.loginForm, reg:this.regForm, rec:this.recForm};
     U.$$('.tabs button', v).forEach(b => b.onclick = () => { U.$$('.tabs button', v).forEach(x => x.classList.toggle('on', x === b)); forms[b.dataset.t].call(this, U.$('#af', v)); });
     this.loginForm(U.$('#af', v));
   },
   fieldErr(box, errs){ U.$$('[data-err]', box).forEach(el => { const k = el.dataset.err; el.textContent = errs[k] || ''; const inp = U.$(`[name="${k}"]`, box); inp && inp.classList.toggle('bad', !!errs[k]); }); },
   loginForm(box){
-    box.innerHTML = `<div class="field"><label for="ll">Login</label><input class="in" id="ll" name="login" autocomplete="username"></div><div class="field"><label for="lp">Senha</label><input class="in" id="lp" type="password" name="password" autocomplete="current-password"></div><div class="field"><span class="errmsg" id="lerr" role="alert"></span></div><button class="btn red block" id="lgo">Entrar</button>`;
+    box.innerHTML = `<div class="field"><label for="ll">${Cloud.on ? 'E-mail' : 'Login'}</label><input class="in" id="ll" name="login" ${Cloud.on ? 'type="email" autocomplete="email"' : 'autocomplete="username"'}></div><div class="field"><label for="lp">Senha</label><input class="in" id="lp" type="password" name="password" autocomplete="current-password"></div><div class="field"><span class="errmsg" id="lerr" role="alert"></span></div><button class="btn red block" id="lgo">Entrar</button>`;
     const go = async () => { const b = U.$('#lgo', box); b.disabled = true; b.textContent = 'Verificando…';
       try { await Auth.login(U.$('#ll', box).value, U.$('#lp', box).value); UI.toast('Bem-vindo de volta!'); Shell.renderNav(); Shell.refreshUser(); Router.render(); }
       catch(e){ U.$('#lerr', box).textContent = e.message; b.disabled = false; b.textContent = 'Entrar'; } };
     U.$('#lgo', box).onclick = go; U.$$('input', box).forEach(i => i.onkeydown = e => { if (e.key === 'Enter') go(); });
   },
   regFields(u){ const f = u ? u.profile.favPlayers : [];
-    return `<div class="field"><label for="rn">Nome completo</label><input class="in" id="rn" name="name" autocomplete="name" value="${U.esc(u?u.name:'')}"><span class="errmsg" data-err="name"></span></div>
-    <div class="field"><label for="rb">Data de nascimento</label><input class="in" id="rb" name="birth" type="date" value="${U.esc(u?u.birth:'')}"><span class="errmsg" data-err="birth"></span></div>
+    return `${Cloud.on ? '' : `<div class="field"><label for="rn">Nome completo</label><input class="in" id="rn" name="name" autocomplete="name" value="${U.esc(u?u.name:'')}"><span class="errmsg" data-err="name"></span></div>`}
+    <div class="field"><label for="rb">Data de nascimento</label><input class="in" id="rb" name="birth" type="date" value="${U.esc(u?u.birth:'')}">${Cloud.on ? '<span class="hint">Usada só para conferir a idade mínima de 13 anos. Não é guardada.</span>' : ''}<span class="errmsg" data-err="birth"></span></div>
     <div class="field"><label for="re">E-mail</label><input class="in" id="re" name="email" type="email" autocomplete="email" value="${U.esc(u?u.email:'')}"><span class="errmsg" data-err="email"></span></div>
-    <div class="field"><label for="rl">Login</label><input class="in" id="rl" name="login" autocomplete="username" value="${U.esc(u?u.login:'')}" ${u?'disabled':''}><span class="errmsg" data-err="login"></span></div>
+    <div class="field"><label for="rl">${Cloud.on ? 'Apelido (aparece no site)' : 'Login'}</label><input class="in" id="rl" name="login" autocomplete="username" value="${U.esc(u?u.login:'')}" ${u?'disabled':''}><span class="errmsg" data-err="login"></span></div>
     <div class="field"><label for="rp">${u?'Nova senha (opcional)':'Senha'}</label><input class="in" id="rp" name="password" type="password" autocomplete="new-password"><span class="hint">Mínimo de 6 caracteres, uma letra maiúscula e um número ou caractere especial.</span><span class="errmsg" data-err="password"></span></div>
     <div class="field"><label for="rp2">Confirmação da senha</label><input class="in" id="rp2" name="password2" type="password" autocomplete="new-password"><span class="errmsg" data-err="password2"></span></div>
     <div class="field"><label>Três jogadores favoritos do Vasco</label>${[0,1,2].map(i => `<input class="in" name="fav${i}" list="favlist" value="${U.esc(f[i]||'')}" placeholder="Favorito ${i+1}" style="margin-bottom:6px">`).join('')}<datalist id="favlist">${Store.col('players').map(p => `<option value="${U.esc(p.name)}">`).join('')}</datalist><span class="errmsg" data-err="favs"></span></div>`; },
   readReg(box, editingId){ const g = n => (U.$(`[name="${n}"]`, box)||{}).value || ''; return {name:g('name'), birth:g('birth'), email:g('email'), login:g('login'), password:g('password'), password2:g('password2'), favs:[g('fav0'),g('fav1'),g('fav2')], consent:(U.$('#rc', box)||{}).checked, editingId}; },
   regForm(box){
-    box.innerHTML = this.regFields() + `<div class="field"><label class="row" style="font-weight:500"><input type="checkbox" id="rc" name="consent"> Concordo que estes dados fiquem salvos apenas neste navegador (LGPD). Não coletamos CPF, endereço ou telefone.</label><span class="errmsg" data-err="consent"></span></div><button class="btn red block" id="rgo">Criar conta</button>`;
+    box.innerHTML = this.regFields() + `<div class="field"><label class="row" style="font-weight:500"><input type="checkbox" id="rc" name="consent"> ${Cloud.on ? 'Concordo que meu e-mail, apelido, favoritos e pontuação fiquem guardados no banco de dados do site (Supabase), conforme a LGPD. Posso baixar ou apagar meus dados quando quiser. Não coletamos CPF, endereço ou telefone.' : 'Concordo que estes dados fiquem salvos apenas neste navegador (LGPD). Não coletamos CPF, endereço ou telefone.'}</label><span class="errmsg" data-err="consent"></span></div><button class="btn red block" id="rgo">Criar conta</button>`;
     U.$('#rgo', box).onclick = async () => { const f = this.readReg(box), errs = Auth.validateRegistration(f); this.fieldErr(box, errs);
       if (Object.keys(errs).length) { UI.toast('Corrija os campos destacados.', 'err'); return; }
       const b = U.$('#rgo', box); b.disabled = true; b.textContent = 'Criando…';
       try { const g = Store.db.guest, u = await Auth.register(f);
-        if (g.points || g.history.length) { Object.assign(u.profile, {points:g.points, records:g.records, plays:g.plays, medals:g.medals, history:g.history, daily:g.daily, reads:g.reads}); Store.db.guest = Profile.blank('Convidado'); Store.save(); }
-        UI.toast(u.role === 'admin' ? 'Conta criada. Você é o administrador local.' : 'Conta criada. Bem-vindo à Colina!'); Shell.renderNav(); Shell.refreshUser(); Router.render(); }
+        if (u.pending) { box.innerHTML = `<div class="note"><b>Falta só confirmar o e-mail.</b><br>Enviamos um link de confirmação para <b>${U.esc(u.email)}</b>. Abra o e-mail e clique no link para ativar sua conta. Se não chegar em alguns minutos, olhe a caixa de spam.</div>`; return; }
+        if (!u.cloud && (g.points || g.history.length)) { Object.assign(u.profile, {points:g.points, records:g.records, plays:g.plays, medals:g.medals, history:g.history, daily:g.daily, reads:g.reads}); Store.db.guest = Profile.blank('Convidado'); Store.save(); }
+        UI.toast(!u.cloud && u.role === 'admin' ? 'Conta criada. Você é o administrador local.' : 'Conta criada. Bem-vindo à Colina!'); Shell.renderNav(); Shell.refreshUser(); Router.render(); }
       catch(e){ UI.toast('Não foi possível criar a conta: ' + e.message, 'err'); b.disabled = false; b.textContent = 'Criar conta'; } };
   },
   recForm(box){
+    if (Cloud.on) {
+      box.innerHTML = `<p class="small muted" style="margin-bottom:10px">Informe o e-mail da sua conta. Vamos enviar um link para você criar uma nova senha.</p><div class="field"><label for="rce">E-mail</label><input class="in" id="rce" type="email" autocomplete="email"></div><div class="field"><span class="errmsg" id="rerr" role="alert"></span></div><button class="btn red block" id="rgo">Enviar link</button>`;
+      U.$('#rgo', box).onclick = async () => { const email = U.$('#rce', box).value.trim().toLowerCase(), err = U.$('#rerr', box), b = U.$('#rgo', box);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { err.textContent = 'E-mail inválido.'; return; }
+        b.disabled = true; b.textContent = 'Enviando…';
+        try { await Cloud.recover(email); box.innerHTML = `<div class="note">Se existir uma conta com <b>${U.esc(email)}</b>, você vai receber um link em alguns minutos. Olhe também a caixa de spam.</div>`; }
+        catch(e) { err.textContent = e.message; b.disabled = false; b.textContent = 'Enviar link'; } };
+      return;
+    }
     box.innerHTML = `<div class="note">Recuperação <b>demonstrativa</b>: como não há servidor de e-mail, a identidade é conferida pelos dados do cadastro. Na versão online, será enviado um link seguro por e-mail.</div><div class="field"><label>Login</label><input class="in" name="login"></div><div class="field"><label>E-mail cadastrado</label><input class="in" name="email" type="email"></div><div class="field"><label>Data de nascimento</label><input class="in" name="birth" type="date"></div><div class="field"><label>Nova senha</label><input class="in" name="password" type="password" autocomplete="new-password"></div><div class="field"><label>Confirmação</label><input class="in" name="password2" type="password" autocomplete="new-password"><span class="errmsg" id="rerr"></span></div><button class="btn red block" id="rgo">Redefinir senha</button>`;
     U.$('#rgo', box).onclick = async () => { const g = n => U.$(`[name="${n}"]`, box).value; const err = U.$('#rerr', box);
       const u = Store.db.users.find(x => x.login.toLowerCase() === g('login').trim().toLowerCase() && x.email === g('email').trim().toLowerCase() && x.birth === g('birth'));
@@ -1344,7 +1523,7 @@ Pages.perfil = { title:'Meu perfil', render(v){ Auth.user() ? this.logged(v) : t
   },
   logged(v){
     const u = Auth.user(), p = u.profile, lv = Profile.level(p.points);
-    v.innerHTML = `<div class="grid g2"><div class="card"><div class="row"><span class="avatar" style="width:64px;height:64px;font-size:30px">${U.esc(U.initials(p.displayName))}</span><div><h3>${U.esc(p.displayName)}</h3><p class="small muted">${U.esc(u.name)} · ${u.role === 'admin' ? 'Administrador local' : 'Torcedor'}</p></div></div>
+    v.innerHTML = `<div class="grid g2"><div class="card"><div class="row"><span class="avatar" style="width:64px;height:64px;font-size:30px">${U.esc(U.initials(p.displayName))}</span><div><h3>${U.esc(p.displayName)}</h3><p class="small muted">${U.esc(u.cloud ? u.email : u.name)} · ${u.role === 'admin' ? (u.cloud ? 'Administrador' : 'Administrador local') : 'Torcedor'}</p></div></div>
       <div class="hr"></div><div class="level"><span class="lv">${lv.idx}</span><div style="flex:1"><b>${lv.name}</b><div class="progress" style="margin:6px 0"><i style="width:${Math.round(lv.pct*100)}%"></i></div><span class="small muted">${p.points} pontos${lv.next ? ` · faltam ${lv.next.min - p.points} para ${lv.next.name}` : ' · nível máximo'}</span></div></div>
       <div class="row" style="margin-top:14px"><button class="btn sm" id="edit">Editar dados</button><button class="btn sm" id="theme">Alternar tema claro/escuro</button><button class="btn sm" id="skin2">Mudar visual</button><button class="btn sm" id="mine">Baixar meus dados</button><button class="btn sm ghost" id="out">Sair</button></div></div>
       <div class="card"><h3>Favoritos</h3><p class="small muted" style="margin-bottom:6px">Jogadores</p><div class="row">${p.favPlayers.map(n => `<span class="chip">${U.esc(n)}</span>`).join('') || '<span class="muted small">Nenhum</span>'}</div><p class="small muted" style="margin:12px 0 6px">Jogos favoritos</p><div class="row">${p.favGames.map(g => `<span class="chip">${U.esc(GAME_NAMES[g]||g)}</span>`).join('') || '<span class="muted small">Marque jogos com a estrela no Game Center.</span>'}</div>
@@ -1352,10 +1531,17 @@ Pages.perfil = { title:'Meu perfil', render(v){ Auth.user() ? this.logged(v) : t
       <h2 class="sec">Recordes</h2><div class="grid g4">${Object.keys(GAME_NAMES).map(g => `<div class="card"><div class="kicker">${GAME_NAMES[g]}</div><div class="big">${p.records[g] ?? '—'}</div><p class="small muted">${p.plays[g]||0} partida(s)</p></div>`).join('')}</div>
       <h2 class="sec">Conquistas virtuais</h2><div class="grid g4">${MEDALS.map(m => { const on = p.medals.includes(m.id); return `<div class="medal ${on?'':'off'}">${medalSvg(on)}<b>${m.name}</b><span class="small muted">${m.desc}</span></div>`; }).join('')}</div>
       <h2 class="sec">Histórico de partidas</h2>${p.history.length ? `<div class="tablewrap"><table><thead><tr><th>Quando</th><th>Jogo</th><th>Pontos</th><th>Detalhe</th></tr></thead><tbody>${p.history.slice(0,30).map(h => `<tr><td>${new Date(h.at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${U.esc(GAME_NAMES[h.game]||h.game)}</td><td><b>${h.points}</b></td><td class="wrap">${U.esc(h.detail)}</td></tr>`).join('')}</tbody></table></div>` : UI.empty('Nenhuma partida ainda', 'Jogue no Game Center para registrar seu histórico.', '<a class="btn red" href="#/games">Jogar agora</a>')}
-      <h2 class="sec">Privacidade</h2><div class="card"><p class="small muted">Você pode baixar uma cópia dos seus dados (portabilidade) ou excluir sua conta deste navegador a qualquer momento (LGPD, art. 18).</p><button class="btn sm ghost" id="del" style="margin-top:10px">Excluir minha conta</button></div>`;
+      <h2 class="sec">Privacidade</h2><div class="card"><p class="small muted">Você pode baixar uma cópia dos seus dados (portabilidade) ou excluir sua conta ${u.cloud ? 'e todos os dados dela no servidor' : 'deste navegador'} a qualquer momento (LGPD, art. 18).</p><button class="btn sm ghost" id="del" style="margin-top:10px">Excluir minha conta</button></div>`;
     U.$('#out', v).onclick = () => Auth.logout(); U.$('#skin2', v).onclick = () => Skin.chooser();
     U.$('#theme', v).onclick = () => { const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = t; try { localStorage.setItem('falavascao:theme', t); } catch(e){} };
     U.$('#mine', v).onclick = () => { const {pass, ...safe} = u; Admin.download(`meus-dados-${u.login}.json`, safe); };
+    if (u.cloud) {
+      U.$('#del', v).onclick = async () => { if (!await UI.confirm('Excluir sua conta, pontuação e histórico do servidor? Não há como desfazer.', {ok:'Excluir conta'})) return;
+        try { await Cloud.deleteAccount(); Auth._user = null; Shell.renderNav(); Shell.refreshUser(); UI.toast('Conta excluída. Todos os seus dados foram apagados.'); Router.go('inicio'); }
+        catch(e) { UI.toast('Não foi possível excluir: ' + e.message, 'err', 6000); } };
+      U.$('#edit', v).onclick = () => this.cloudEdit(u);
+      return;
+    }
     U.$('#del', v).onclick = async () => { if (!await UI.confirm('Excluir sua conta, pontuação e histórico deste navegador? Não há como desfazer.', {ok:'Excluir conta'})) return; Store.db.users = Store.db.users.filter(x => x.id !== u.id); if (u.role === 'admin' && Store.db.users.length && !Store.db.users.some(x => x.role === 'admin')) Store.db.users[0].role = 'admin'; Store.save(); Auth.logout(); Shell.renderNav(); };
     U.$('#edit', v).onclick = () => { const m = UI.modal({title:'Editar dados', body:`<div class="field"><label>Nome de exibição</label><input class="in" name="display" value="${U.esc(p.displayName)}" maxlength="30"></div>` + this.regFields(u), actions:[{label:'Cancelar', cls:'ghost'}, {label:'Salvar alterações', cls:'red', onClick: async bg => {
       const f = this.readReg(bg, u.id); f.login = u.login; const errs = Auth.validateRegistration(f); this.fieldErr(bg, errs); const disp = U.$('[name="display"]', bg).value.trim();
@@ -1364,6 +1550,28 @@ Pages.perfil = { title:'Meu perfil', render(v){ Auth.user() ? this.logged(v) : t
       Object.assign(u, {name:f.name.trim(), birth:f.birth, email:f.email.trim().toLowerCase()}); p.displayName = disp; p.favPlayers = f.favs.map(s => s.trim()).filter(Boolean).slice(0,3);
       if (f.password) u.pass = await Hash.make(f.password);
       Store.save(); Shell.refreshUser(); UI.toast('Dados atualizados.'); Router.render(); }}]}); };
+  },
+  passFields(){ return `<div class="field"><label for="np1">Nova senha</label><input class="in" id="np1" name="password" type="password" autocomplete="new-password"><span class="hint">Mínimo de 6 caracteres, uma letra maiúscula e um número ou caractere especial.</span><span class="errmsg" data-err="password"></span></div><div class="field"><label for="np2">Confirmação da senha</label><input class="in" id="np2" name="password2" type="password" autocomplete="new-password"><span class="errmsg" data-err="password2"></span></div>`; },
+  checkPass(bg, optional){ const p1 = U.$('#np1', bg).value, p2 = U.$('#np2', bg).value, errs = {};
+    if (p1 || !optional) { const pe = Auth.validatePassword(p1); if (pe.length) errs.password = 'A senha precisa de: ' + pe.join(', ') + '.'; if (p1 !== p2) errs.password2 = 'As senhas não conferem.'; }
+    this.fieldErr(bg, errs); return Object.keys(errs).length ? null : p1; },
+  /** Edição de perfil no modo online: apelido de exibição, favoritos e senha (o e-mail é trocado pelo suporte). */
+  cloudEdit(u){ const p = u.profile;
+    UI.modal({title:'Editar dados', body:`<div class="field"><label>Nome de exibição</label><input class="in" name="display" value="${U.esc(p.displayName)}" maxlength="30"></div><div class="field"><label>Três jogadores favoritos do Vasco</label>${[0,1,2].map(i => `<input class="in" name="fav${i}" value="${U.esc(p.favPlayers[i]||'')}" placeholder="Favorito ${i+1}" style="margin-bottom:6px">`).join('')}</div><p class="small muted" style="margin:6px 0">Para trocar a senha, preencha os campos abaixo. Deixe em branco para manter a atual.</p>${this.passFields()}`,
+      actions:[{label:'Cancelar', cls:'ghost'}, {label:'Salvar alterações', cls:'red', onClick: async bg => {
+        const disp = U.$('[name="display"]', bg).value.trim(); if (!disp) { UI.toast('Informe um nome de exibição.', 'err'); return false; }
+        const pass = this.checkPass(bg, true); if (pass === null) { UI.toast('Corrija os campos destacados.', 'err'); return false; }
+        try { if (pass) await Cloud.setPassword(pass); } catch(e) { UI.toast('Senha não alterada: ' + e.message, 'err', 6000); return false; }
+        p.displayName = disp.slice(0,30); p.favPlayers = [0,1,2].map(i => U.$(`[name="fav${i}"]`, bg).value.trim()).filter(Boolean).slice(0,3);
+        try { await Cloud.saveProfile(); } catch(e) { UI.toast('Não foi possível salvar: ' + e.message, 'err', 6000); return false; }
+        Shell.refreshUser(); UI.toast(pass ? 'Dados e senha atualizados.' : 'Dados atualizados.'); Router.render(); }}]});
+  },
+  /** Chamado ao voltar pelo link de "Recuperar acesso" recebido por e-mail. */
+  newPassword(){
+    UI.modal({title:'Criar nova senha', body:`<p class="small muted" style="margin-bottom:10px">Você entrou pelo link de recuperação. Escolha a nova senha da sua conta.</p>${this.passFields()}`,
+      actions:[{label:'Agora não', cls:'ghost'}, {label:'Salvar nova senha', cls:'red', onClick: async bg => {
+        const pass = this.checkPass(bg, false); if (pass === null) return false;
+        try { await Cloud.setPassword(pass); UI.toast('Senha alterada com sucesso.'); } catch(e) { UI.toast('Não foi possível alterar a senha: ' + e.message, 'err', 6000); return false; } }}]});
   }
 };
 
@@ -1775,7 +1983,7 @@ const Admin = {
       const errs = this.validate(col, out); Object.keys(out).filter(k => k.startsWith('__raw_')).forEach(k => delete out[k]);
       if (errs.length) { U.$('#ferr', bg).innerHTML = errs.map(U.esc).join('<br>'); UI.toast('Corrija os campos indicados.', 'err'); return false; }
       if (col === 'matches' && !Number.isFinite(out.gf)) { out.gf = null; out.ga = null; }
-      Store.upsert(col, out); Store.db.meta.lastUpdate = U.today(); Store.save(); UI.toast(cur ? 'Registro atualizado.' : 'Registro adicionado.'); after && after(); }}]});
+      Store.upsert(col, out); Store.db.meta.lastUpdate = U.today(); Store.save(); if (Cloud.on && Auth.isAdmin()) Cloud.pushSettings().catch(Cloud.fail); UI.toast(cur ? 'Registro atualizado.' : 'Registro adicionado.'); after && after(); }}]});
     U.$$('[data-file]', m.el).forEach(inp => inp.onchange = () => { const f = inp.files[0]; if (!f) return; if (!/^image\/(png|jpeg|webp)$/.test(f.type)) return UI.toast('Use PNG, JPG ou WEBP.', 'err'); if (f.size > 8e6) return UI.toast('Imagem maior que 8 MB.', 'err');
       const img = new Image(), url = URL.createObjectURL(f); img.onload = () => { const s = Math.min(1, 600 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width*s); c.height = Math.round(img.height*s); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); files[inp.dataset.file] = c.toDataURL('image/jpeg', .82); URL.revokeObjectURL(url); UI.toast('Imagem pronta para salvar.'); }; img.onerror = () => UI.toast('Não foi possível ler a imagem.', 'err'); img.src = url; });
   },
@@ -1785,7 +1993,7 @@ const Admin = {
 };
 Pages.admin = { title:'Painel administrativo', admin:true, render(v, param){
   const tab = ['conteudo','dados','backup','usuarios'].includes(param) ? param : 'conteudo';
-  v.innerHTML = `<div class="note red">Painel do administrador local. Alterações valem apenas neste navegador até a integração com o banco online. Faça backups com frequência.</div><div class="tabs">${[['conteudo','Conteúdo'],['dados','Dados atuais'],['backup','Backup e importação'],['usuarios','Usuários locais']].map(([k,l]) => `<button class="${k===tab?'on':''}" data-t="${k}">${l}</button>`).join('')}</div><div id="ab"></div>`;
+  v.innerHTML = `${Cloud.on ? '<div class="note">Painel do administrador. As alterações são gravadas no banco online e aparecem para todos os visitantes. Faça backups com frequência.</div>' : '<div class="note red">Painel do administrador local. Alterações valem apenas neste navegador até a integração com o banco online. Faça backups com frequência.</div>'}<div class="tabs">${[['conteudo','Conteúdo'],['dados','Dados atuais'],['backup','Backup e importação'],['usuarios', Cloud.on ? 'Usuários' : 'Usuários locais']].map(([k,l]) => `<button class="${k===tab?'on':''}" data-t="${k}">${l}</button>`).join('')}</div><div id="ab"></div>`;
   U.$$('.tabs button', v).forEach(b => b.onclick = () => Router.go('admin', b.dataset.t));
   this[tab](U.$('#ab', v));
 },
@@ -1811,12 +2019,14 @@ Pages.admin = { title:'Painel administrativo', admin:true, render(v, param){
       m.coach = U.$('#coach', box).value.trim();
       m.rss = U.$('#rss', box).value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(c => c[0] && U.safeUrl(c[1])).map(c => ({name:c[0], url:U.safeUrl(c[1])}));
       const cur = U.$('#cur', box).value.split('\n').map(x => x.trim()).filter(Boolean); if (cur.length) Store.db.curiosities = cur;
-      m.lastUpdate = U.today(); Store.save(); Shell.renderNav(); UI.toast('Dados atuais salvos.'); };
+      m.lastUpdate = U.today(); Store.save(); Shell.renderNav();
+      if (Cloud.on) Cloud.pushSettings().then(() => UI.toast('Dados atuais salvos no banco online.')).catch(Cloud.fail); else UI.toast('Dados atuais salvos.'); };
   },
   backup(box){
     const size = (() => { try { return Math.round((localStorage.getItem(APP.storeKey)||'').length / 1024); } catch(e) { return 0; } })();
     box.innerHTML = `<div class="grid g2"><div class="card"><h3>Exportar</h3><p class="small muted" style="margin:6px 0 12px">Uso atual: ~${size} KB de ~5.000 KB disponíveis no navegador.</p><div class="row"><button class="btn red" id="exF">Backup completo (JSON)</button><button class="btn" id="exC">Somente conteúdo (sem contas)</button></div><p class="small muted" style="margin-top:10px">O backup completo inclui contas locais com hashes de senha (nunca senhas em texto). Guarde o arquivo com cuidado e não o publique.</p></div>
     <div class="card"><h3>Importar / restaurar</h3><p class="small muted" style="margin:6px 0 12px">Aceita arquivos gerados por esta plataforma (até 10 MB).</p><input type="file" id="imf" accept="application/json,.json"><div class="row" style="margin-top:12px"><label class="row small"><input type="radio" name="mode" value="merge" checked> Mesclar conteúdo (mantém o que existe e atualiza por ID)</label><label class="row small"><input type="radio" name="mode" value="replace"> Restaurar backup completo (substitui tudo)</label></div><button class="btn red" id="imb" style="margin-top:12px">Importar arquivo</button></div></div>
+    ${Cloud.on ? `<div class="card" style="margin-top:14px"><h3>Banco online</h3><p class="small muted" style="margin:6px 0 12px">Envia ao banco todo o conteúdo que está neste navegador: notícias, títulos, jogadores, quiz e os demais. Use na primeira vez, para publicar o conteúdo inicial, ou para corrigir uma diferença. Registros com o mesmo ID são substituídos; nada é apagado.</p><button class="btn red" id="pushAll">Enviar conteúdo para o banco online</button></div>` : ''}
     <div class="card" style="margin-top:14px"><h3>Restaurar dados iniciais</h3><p class="small muted" style="margin:6px 0 12px">Volta o conteúdo editorial ao banco original desta versão, preservando contas, pontuações e gestões.</p><button class="btn ghost" id="rs">Restaurar conteúdo original</button></div>`;
     const stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
     U.$('#exF', box).onclick = () => Admin.download(`falavascao-backup-${stamp}.json`, {...Store.db, exportedAt:new Date().toISOString(), kind:'full'});
@@ -1826,16 +2036,30 @@ Pages.admin = { title:'Painel administrativo', admin:true, render(v, param){
       if (!data || typeof data !== 'object' || data.v !== APP.dataVersion) return UI.toast('Arquivo incompatível com esta versão da plataforma.', 'err');
       const bad = Admin.CONTENT.filter(k => k in data && !Array.isArray(data[k])); if (bad.length) return UI.toast('Estrutura inválida em: ' + bad.join(', '), 'err');
       const mode = U.$('[name="mode"]:checked', box).value;
+      if (mode === 'replace' && Cloud.on) return UI.toast('No modo online as contas ficam no servidor. Use "Mesclar conteúdo" para importar.', 'warn', 6000);
       if (mode === 'replace') { if (data.kind !== 'full' || !Array.isArray(data.users)) return UI.toast('Para restaurar tudo, use um backup completo.', 'err'); if (!await UI.confirm('Substituir TODOS os dados deste navegador pelo backup? Contas e pontuações atuais serão trocadas.', {ok:'Restaurar backup'})) return;
         const backup = JSON.stringify(Store.db); try { delete data.exportedAt; delete data.kind; Store.db = data; Store.migrate(); if (!Store.save()) throw new Error('falha ao salvar'); } catch(e) { Store.db = JSON.parse(backup); return UI.toast('Restauração cancelada: ' + e.message, 'err'); }
         Auth.restore(); }
       else { if (!await UI.confirm('Mesclar o conteúdo do arquivo com o atual? Registros com o mesmo ID serão substituídos.', {ok:'Mesclar', danger:false})) return;
         Admin.CONTENT.forEach(k => { if (!Array.isArray(data[k])) return; if (k === 'curiosities') { Store.db.curiosities = [...new Set([...Store.db.curiosities, ...data[k].filter(x => typeof x === 'string')])]; return; } data[k].forEach(r => { if (r && typeof r === 'object') { if (!r.id) r.id = U.uid(k.slice(0,3)); const c = Store.col(k), i = c.findIndex(x => x.id === r.id); i >= 0 ? c[i] = r : c.push(r); } }); });
-        if (data.meta && typeof data.meta === 'object') Object.assign(Store.db.meta, data.meta); Store.save(); }
+        if (data.meta && typeof data.meta === 'object') Object.assign(Store.db.meta, data.meta); Store.save();
+        if (Cloud.on) { try { const r = await Cloud.pushAll(false); UI.toast(`${r.sent} registro(s) enviados ao banco online.`); } catch(e) { Cloud.fail(e); } } }
       UI.toast('Importação concluída.'); Shell.renderNav(); Shell.refreshUser(); Router.render(); };
-    U.$('#rs', box).onclick = async () => { if (!await UI.confirm('Restaurar o conteúdo editorial original? Notícias, títulos, perguntas e demais registros editados serão perdidos (contas e pontuações ficam).', {ok:'Restaurar'})) return; const s = U.clone(SEED); Admin.CONTENT.forEach(k => Store.db[k] = s[k]); Store.db.meta = s.meta; Store.save(); UI.toast('Conteúdo original restaurado.'); Router.render(); };
+    U.$('#rs', box).onclick = async () => { if (!await UI.confirm('Restaurar o conteúdo editorial original? Notícias, títulos, perguntas e demais registros editados serão perdidos (contas e pontuações ficam).', {ok:'Restaurar'})) return; const s = U.clone(SEED); Admin.CONTENT.forEach(k => Store.db[k] = s[k]); Store.db.meta = s.meta; Store.save();
+      if (Cloud.on) { try { const r = await Cloud.pushAll(true); UI.toast(`Banco online atualizado: ${r.sent} enviado(s), ${r.removed} removido(s).`); } catch(e) { Cloud.fail(e); } }
+      UI.toast('Conteúdo original restaurado.'); Router.render(); };
+    const pa = U.$('#pushAll', box); if (pa) pa.onclick = async () => { if (!await UI.confirm('Enviar todo o conteúdo deste navegador para o banco online? Ele passará a aparecer para todos os visitantes.', {ok:'Enviar', danger:false})) return;
+      pa.disabled = true; pa.textContent = 'Enviando…';
+      try { const r = await Cloud.pushAll(false); UI.toast(`Pronto: ${r.sent} registro(s) enviados ao banco online.`); } catch(e) { Cloud.fail(e); }
+      pa.disabled = false; pa.textContent = 'Enviar conteúdo para o banco online'; };
   },
   usuarios(box){
+    if (Cloud.on) {
+      box.innerHTML = UI.loader('Carregando usuários…');
+      Cloud.listProfiles().then(list => { box.innerHTML = `<p class="small muted" style="margin-bottom:12px">Contas cadastradas no site. Por segurança, ninguém vira administrador pelo site: para dar ou tirar acesso de admin, use o Editor SQL do Supabase (veja o fim do arquivo <code>supabase/schema.sql</code>). E-mails não aparecem aqui.</p><div class="tablewrap"><table><thead><tr><th>Login</th><th>Nome de exibição</th><th>Pontos</th><th>Desde</th></tr></thead><tbody>${list.map(p => `<tr><td>${U.esc(p.login)}</td><td>${U.esc(p.display_name)}</td><td>${Math.max(0, +p.points || 0)}</td><td>${U.esc(U.fmtDate(String(p.created_at||'').slice(0,10)))}</td></tr>`).join('') || `<tr><td colspan="4">${UI.empty('Nenhuma conta ainda', 'As contas aparecem aqui quando os torcedores se cadastrarem.')}</td></tr>`}</tbody></table></div>`; })
+        .catch(e => { box.innerHTML = UI.empty('Não foi possível carregar', e.message); });
+      return;
+    }
     const draw = () => { box.innerHTML = `<p class="small muted" style="margin-bottom:12px">Contas existentes apenas neste navegador.</p><div class="tablewrap"><table><thead><tr><th>Login</th><th>Nome</th><th>Papel</th><th>Pontos</th><th></th></tr></thead><tbody>${Store.db.users.map(u => `<tr><td>${U.esc(u.login)}</td><td>${U.esc(u.name)}</td><td>${u.role === 'admin' ? 'Administrador' : 'Torcedor'}</td><td>${u.profile.points}</td><td>${u.id === Auth.user().id ? '<span class="small muted">Você</span>' : `<button class="btn sm ghost" data-role="${u.id}">${u.role === 'admin' ? 'Tornar torcedor' : 'Tornar admin'}</button> <button class="btn sm ghost" data-rm="${u.id}">Remover</button>`}</td></tr>`).join('')}</tbody></table></div>`;
       U.$$('[data-role]', box).forEach(b => b.onclick = async () => { const u = Store.db.users.find(x => x.id === b.dataset.role); if (!await UI.confirm(`Alterar o papel de ${u.login}?`, {danger:false})) return; u.role = u.role === 'admin' ? 'torcedor' : 'admin'; Store.save(); UI.toast('Papel alterado.'); draw(); });
       U.$$('[data-rm]', box).forEach(b => b.onclick = async () => { const u = Store.db.users.find(x => x.id === b.dataset.rm); if (!await UI.confirm(`Remover a conta ${u.login} e todo o seu progresso?`, {ok:'Remover'})) return; Store.db.users = Store.db.users.filter(x => x.id !== u.id); Store.save(); UI.toast('Conta removida.'); draw(); }); };
@@ -1893,9 +2117,12 @@ window.addEventListener('unhandledrejection', e => { console.error(e.reason); tr
 (function boot(){
   try {
     try { const t = localStorage.getItem('falavascao:theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch(e){}
-    Skin.restore(); Store.load(); Auth.restore(); Shell.init(); Skin.init();
+    Skin.restore(); Store.load(); Cloud.on = Cloud.enabled();
+    const tok = Cloud.on ? Cloud.readHashTokens() : null;
+    Auth.restore(); Shell.init(); Skin.init();
     if (!location.hash) history.replaceState(null, '', '#/inicio');
     Router.render();
+    if (Cloud.on) Cloud.start(tok);
     if (!Store.probe()) UI.toast('O navegador está bloqueando o armazenamento local: seus dados não serão mantidos ao fechar.', 'warn', 7000);
     const b = U.$('#boot'); b.style.opacity = '0'; setTimeout(() => b.remove(), 400);
   } catch(e) { console.error(e); U.$('#bootMsg').textContent = 'Não foi possível iniciar: ' + e.message + '. Tente outro navegador ou limpe os dados do site.'; }
