@@ -67,9 +67,15 @@ orientado a esquema) · `Skin`/`SKINS` · `Countdown` · boot. Banco inicial em 
    `falavascao.site@gmail.com` com senha de app, configurado só no painel do Supabase; modelos em português em
    `supabase/emails/`, testado com cadastro real em 07/11/2026). Falta: ligar `manager_teams`,
    ranking global opt-in (exige pontuação validada no servidor) e MFA opcional na tela de perfil.
-3. Robô de notícias: Supabase Edge Function lendo RSS (Netvasco `https://www.netvasco.com.br/news/rss.xml`,
-   Google Notícias "Vasco", YouTube de fontes jornalísticas) a cada 10 min via Supabase Cron; grava só
-   título/fonte/data/link, deduplica por URL; allowlist de domínios, timeout e limite de tamanho.
+3. **Robô de notícias "Giro da Colina"** (código pronto, v1.3): Edge Function `supabase/functions/giro-da-colina/index.ts`
+   (sem dependências; funções puras exportadas e testadas em `tests/giro.mjs`), tabelas/RLS/fontes iniciais em
+   `supabase/giro-da-colina.sql`, agendamento Supabase Cron a cada 15 min. Guarda só título da fonte, veículo,
+   horário e link (nunca texto/imagem da matéria). Fontes com feed próprio: NetVasco, ge, SuperVasco, Papo na Colina;
+   sem feed (LANCE!, ESPN): busca do Google Notícias "Vasco site:domínio". Site oficial e Atenção Vascaínos
+   não têm feed utilizável (verificado em 07/11/2026). Categoria e confirmação são heurísticas por palavras-chave
+   (admin corrige → `manual=true`). Visitantes disparam no máx. 1 busca/5 min; admin força. Função com
+   "Verify JWT" desligado (faz a própria checagem de admin). No site: módulo `Giro`, aba em Notícias,
+   destaques na Início e aba "Giro da Colina" no painel. Resumo por IA: opcional, ainda não implementado.
 4. GitHub Action a cada 3 dias acessando o Supabase para evitar pausa do plano grátis.
 5. Atualizar a década 2020–2026 (elencos, técnicos, campanhas, jogos) com fonte e status.
 6. Quando crescer: separar `index.html` em arquivos (`css/`, `js/`), CSP com nonce, headers HTTP de segurança.

@@ -141,6 +141,23 @@ h3{font-family:var(--display);font-size:22px;font-weight:800;line-height:1.1;let
 .st.part{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,transparent)}
 .st.pend{color:var(--err);border-color:color-mix(in srgb,var(--err) 50%,transparent)}
 .st.demo{color:var(--muted);border-color:var(--line)}
+.st.rum{color:var(--muted);border-color:var(--muted);border-style:dashed}
+/* Giro da Colina */
+.giro-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 4px}
+.giro-card h3 a{text-decoration:none}
+.giro-card h3 a:hover{text-decoration:underline;text-underline-offset:3px}
+.giro-card .src{font-size:13px;color:var(--muted)}
+.giro-card .src b{color:var(--text);font-weight:700}
+.giro-card .also{font-size:12.5px;color:var(--muted)}
+.giro-card .also a{color:var(--text)}
+.giro-card .sum{font-size:14.5px}
+.giro-card .sumk{font-size:11px;color:var(--muted);letter-spacing:.04em}
+.giro-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+.giro-top .card:first-child h3{font-size:28px}
+@media (max-width:1100px){.giro-top{grid-template-columns:1fr 1fr}.giro-top .card:first-child{grid-column:1/-1}}
+@media (max-width:640px){.giro-top{grid-template-columns:1fr}}
+.count{font-size:11px;font-weight:700;color:var(--muted);margin-left:4px}
+.chip.on .count{color:inherit;opacity:.7}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
 .chip.on{background:var(--white);color:var(--black);border-color:var(--white)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
@@ -570,7 +587,9 @@ const STATUS = {
   parcial:{cls:'part', txt:'Parcialmente confirmado'},
   pendente:{cls:'pend', txt:'Pendente de verificação'},
   demo:{cls:'demo', txt:'Demonstrativo'},
-  recreativo:{cls:'demo', txt:'Avaliação recreativa'}
+  recreativo:{cls:'demo', txt:'Avaliação recreativa'},
+  apuracao:{cls:'part', txt:'Apuração jornalística'},
+  rumor:{cls:'rum', txt:'Rumor'}
 };
 const badge = s => { const x = STATUS[s] || STATUS.pendente; return `<span class="st ${x.cls}" title="Grau de confirmação">${x.txt}</span>`; };
 
@@ -1299,8 +1318,9 @@ const Pages = {
       <div class="card"><div class="kicker">Curiosidade do dia</div><p>${U.esc(cur)}</p></div>
       <div class="card" id="dailyBox"></div>
     </div>
-    <div class="spread"><h2 class="sec">Notícias recentes</h2><a class="btn sm ghost" href="#/noticias">Ver todas</a></div>
-    <div class="grid g3">${news.map(n => Pages.newsCard(n)).join('') || UI.empty('Sem notícias', 'Nenhuma notícia cadastrada.')}</div>
+    <div id="homeNews">${Giro.available() ? `<div class="spread"><h2 class="sec">Giro da Colina</h2><a class="btn sm ghost" href="#/noticias">Ver o Giro completo</a></div>${UI.loader('Buscando as notícias do dia…')}` : ''}</div>
+    <div id="homeNewsManual" ${Giro.available() ? 'hidden' : ''}><div class="spread"><h2 class="sec">Notícias recentes</h2><a class="btn sm ghost" href="#/noticias/redacao">Ver todas</a></div>
+    <div class="grid g3">${news.map(n => Pages.newsCard(n)).join('') || UI.empty('Sem notícias', 'Nenhuma notícia cadastrada.')}</div></div>
     <h2 class="sec">Destaques históricos</h2>
     <div class="grid g3">${hl.map(t => `<div class="card click" data-title="${t.id}"><div class="kicker">${t.year}</div><h3>${U.esc(t.comp)}</h3><p class="muted small">${U.esc(t.result)}</p></div>`).join('')}</div>
     <h2 class="sec">Acesso rápido</h2>
@@ -1314,10 +1334,56 @@ const Pages = {
     U.$$('[data-title]', v).forEach(c => c.onclick = () => Encyclopedia.openTitle(c.dataset.title));
     Pages.bindAdmin(v, () => Router.render());
     Daily.render(U.$('#dailyBox', v));
+    if (Giro.available()) {
+      const box = U.$('#homeNews', v), manual = U.$('#homeNewsManual', v);
+      const fill = () => { if (!document.body.contains(box)) return; const top = Giro.highlights(4);
+        if (!top.length) { box.innerHTML = ''; manual.hidden = false; return; }
+        box.innerHTML = `<div class="spread"><h2 class="sec">Giro da Colina</h2><a class="btn sm ghost" href="#/noticias">Ver o Giro completo</a></div><p class="small muted" style="margin:-4px 0 12px">As notícias mais repercutidas do Vasco nas últimas horas, com link para a fonte. ${U.esc(Giro.stamp())}.</p><div class="giro-top">${top.slice(0,3).map((c,i) => Giro.card(c, {big:i===0})).join('')}</div>`;
+        manual.hidden = false;
+        U.$$('[data-gmod]', box).forEach(b => b.onclick = () => Giro.moderate(b.dataset.gmod, fill)); };
+      Giro.load().then(fill).catch(() => { box.innerHTML = ''; manual.hidden = false; });
+    }
   }},
 
   /* ---------- NOTÍCIAS ---------- */
-  noticias:{ title:'Notícias', render(v){
+  noticias:{ title:'Notícias', render(v, param){
+    const tab = param === 'redacao' || !Giro.available() ? 'redacao' : 'giro';
+    v.innerHTML = `${Giro.available() ? `<div class="tabs"><button class="${tab==='giro'?'on':''}" data-nt="giro">Giro da Colina</button><button class="${tab==='redacao'?'on':''}" data-nt="redacao">Seleção da redação</button></div>` : ''}<div id="ntab"></div>`;
+    U.$$('[data-nt]', v).forEach(b => b.onclick = () => Router.go('noticias', b.dataset.nt === 'giro' ? '' : 'redacao'));
+    this[tab === 'giro' ? 'giro' : 'redacao'](U.$('#ntab', v));
+  },
+  giro(v){
+    const state = {cat:'', st:'', q:'', show:30};
+    v.innerHTML = `<p class="lead">O <b>Giro da Colina</b> reúne automaticamente as notícias do Vasco publicadas pelos principais veículos e sites vascaínos. Você vê o título original, o veículo, o horário e o link: a matéria completa fica sempre na fonte.</p>
+      <div class="giro-bar"><span class="small muted" id="gstamp">Carregando…</span><button class="btn sm" id="gref">${ICO('spin',16)} Atualizar agora</button></div>
+      <div class="note">Categoria e grau de confirmação (<b>confirmado</b>, <b>apuração jornalística</b> ou <b>rumor</b>) são definidos automaticamente pelo título e podem errar. Na dúvida, confira na fonte. Nenhum texto das matérias é copiado.</div>
+      <div id="gtop"></div>
+      <h2 class="sec">Todas as notícias</h2>
+      <div class="chips" id="gcats"></div>
+      <div class="filters"><input class="in" id="gq" type="search" placeholder="Filtrar por palavra-chave ou veículo"><select class="in" id="gst"><option value="">Todos os graus de confirmação</option><option value="confirmado">Só confirmadas</option><option value="apuracao">Só apurações jornalísticas</option><option value="rumor">Só rumores</option></select></div>
+      <div class="grid g3" id="glist">${UI.loader('Buscando o Giro da Colina…')}</div><div id="gmore" style="text-align:center;margin-top:14px"></div>`;
+    const draw = () => {
+      U.$('#gstamp', v).textContent = Giro.error ? 'Não foi possível carregar o Giro agora: ' + Giro.error : Giro.stamp();
+      const all = Giro.clusters();
+      const top = Giro.highlights(3);
+      U.$('#gtop', v).innerHTML = top.length ? `<h2 class="sec">Em destaque agora</h2><div class="giro-top">${top.map((c,i) => Giro.card(c, {big:i===0})).join('')}</div>` : '';
+      const counts = {}; all.forEach(c => counts[c.primary.category] = (counts[c.primary.category]||0) + 1);
+      U.$('#gcats', v).innerHTML = `<button class="chip ${!state.cat?'on':''}" data-c="">Todas<span class="count">${all.length}</span></button>` + Object.entries(GIRO_CATS).map(([k,t]) => `<button class="chip ${state.cat===k?'on':''}" data-c="${k}">${t}<span class="count">${counts[k]||0}</span></button>`).join('');
+      U.$$('#gcats .chip', v).forEach(c => c.onclick = () => { state.cat = c.dataset.c; state.show = 30; draw(); });
+      const q = U.norm(state.q);
+      const list = all.filter(c => (!state.cat || c.primary.category === state.cat) && (!state.st || c.primary.status === state.st) && (!q || U.norm(c.primary.title + ' ' + c.primary.publisher + ' ' + c.others.map(o => o.publisher).join(' ')).includes(q)));
+      U.$('#glist', v).innerHTML = list.slice(0, state.show).map(c => Giro.card(c)).join('') || `<div style="grid-column:1/-1">${UI.empty(all.length ? 'Nenhuma notícia neste filtro' : 'Ainda não há notícias no Giro', all.length ? 'Troque a categoria ou limpe a busca.' : 'Assim que o robô fizer a primeira busca, as notícias aparecem aqui.')}</div>`;
+      U.$('#gmore', v).innerHTML = list.length > state.show ? `<button class="btn" id="gmb">Mostrar mais (${list.length - state.show})</button>` : '';
+      const mb = U.$('#gmb', v); if (mb) mb.onclick = () => { state.show += 30; draw(); };
+      U.$$('[data-gmod]', v).forEach(b => b.onclick = () => Giro.moderate(b.dataset.gmod, draw));
+    };
+    U.$('#gq', v).oninput = U.debounce(e => { state.q = e.target.value; state.show = 30; draw(); }, 200);
+    U.$('#gst', v).onchange = e => { state.st = e.target.value; state.show = 30; draw(); };
+    U.$('#gref', v).onclick = () => Giro.refresh(U.$('#gref', v), draw);
+    Giro.load().then(draw).catch(e => { Giro.error = e.message; draw(); });
+    Giro.watch(v, draw);
+  },
+  redacao(v){
     const state = {cat:'', q:''};
     v.innerHTML = `<p class="lead">Resumos próprios de notícias publicadas por fontes vascaínas e esportivas, com link para a matéria original. Nenhuma matéria é reproduzida integralmente.</p>
       <div class="note">Atualização: as notícias desta versão foram pesquisadas em ${U.fmtDate(Store.db.meta.lastUpdate)}. Não há atualização automática garantida: feeds externos costumam ser bloqueados pelo navegador (CORS). Use “Tentar carregar RSS” abaixo ou cadastre pelo painel.</div>
@@ -1375,6 +1441,101 @@ const Feeds = {
     } catch(e) {
       out.innerHTML = `<div class="note red">Não foi possível ler este feed diretamente do navegador (${U.esc(e.name==='AbortError'?'tempo esgotado':e.message)}). Normalmente isso ocorre por bloqueio de CORS ou por falta de conexão. ${Pages.srcLink('Abrir o feed na fonte', url)} — na versão online, a leitura será feita por um servidor intermediário.</div>`;
     } finally { clearTimeout(to); btn.disabled = false; }
+  }
+};
+
+/* ---------------- Giro da Colina: notícias reunidas pelo robô (Supabase Edge Function) ----------------
+   Mostra só título da fonte, veículo, horário e link (nada é copiado das matérias). Categoria e grau de
+   confirmação são automáticos e corrigíveis pelo admin. A mesma notícia em vários veículos vira um só cartão. */
+const GIRO_CATS = {profissional:'Futebol profissional', mercado:'Mercado da bola', bastidores:'Bastidores', base:'Categorias de base', feminino:'Futebol feminino', diretoria:'Diretoria', medico:'Departamento médico', historia:'História'};
+const GIRO_REL = {oficial:0, imprensa:1, blog:2, agregador:3};
+const Giro = {
+  items:[], lastRun:null, loadedAt:0, timer:null, error:'',
+  FN:'/functions/v1/giro-da-colina',
+  available(){ return Cloud.on; },
+  async load(force){
+    if (!force && Date.now() - this.loadedAt < 60000 && this.items.length) return this.items;
+    const since = new Date(Date.now() - 7*864e5).toISOString();
+    const [rows, runs] = await Promise.all([
+      Cloud.req(`/rest/v1/news_items?select=id,url,title,publisher,source_id,published_at,category,status,cluster_id,cluster_size,summary,summary_kind,featured,hidden,manual,news_sources(name,reliability)&published_at=gte.${since}&order=published_at.desc&limit=500`),
+      Cloud.req('/rest/v1/news_runs?select=started_at,finished_at,items_new,sources_ok,sources_fail&order=started_at.desc&limit=1')
+    ]);
+    this.items = (Array.isArray(rows) ? rows : []).filter(r => r && U.safeUrl(r.url) && GIRO_CATS[r.category] && STATUS[r.status]);
+    this.lastRun = Array.isArray(runs) && runs[0] || null; this.loadedAt = Date.now(); this.error = '';
+    return this.items;
+  },
+  rel(it){ return GIRO_REL[(it.news_sources && it.news_sources.reliability) || 'imprensa'] ?? 1; },
+  /** Agrupa por assunto: um cartão por notícia, com os demais veículos em "Também em". */
+  clusters(items = this.items, admin = false){
+    const by = new Map();
+    items.filter(i => admin || !i.hidden).forEach(i => { const k = i.cluster_id || i.id; if (!by.has(k)) by.set(k, []); by.get(k).push(i); });
+    const now = Date.now();
+    return [...by.entries()].map(([id, list]) => {
+      list.sort((a,b) => (b.featured - a.featured) || (this.rel(a) - this.rel(b)) || a.published_at.localeCompare(b.published_at));
+      const primary = list[0], pubs = new Set(), others = [];
+      list.forEach(i => { const p = i.publisher.toLowerCase(); if (pubs.has(p)) return; pubs.add(p); if (i !== primary) others.push(i); });
+      const latest = list.reduce((m, i) => i.published_at > m ? i.published_at : m, list[0].published_at);
+      const hours = (now - Date.parse(latest)) / 36e5;
+      const score = (list.some(i => i.featured) ? 1000 : 0) + pubs.size * 10 + ({confirmado:4, apuracao:2, rumor:0}[primary.status] || 0) + Math.max(0, 24 - hours) / 2;
+      return {id, primary, others, size:pubs.size, latest, score, featured:list.some(i => i.featured)};
+    }).sort((a,b) => b.latest.localeCompare(a.latest));
+  },
+  highlights(n = 4){ const lim = Date.now() - 36*36e5; return this.clusters().filter(c => Date.parse(c.latest) >= lim || c.featured).sort((a,b) => b.score - a.score).slice(0, n); },
+  ago(iso){ const t = Date.parse(iso); if (!Number.isFinite(t)) return 'horário n/d'; const m = Math.round((Date.now() - t) / 6e4);
+    if (m < 1) return 'agora'; if (m < 60) return `há ${m} min`; const h = Math.round(m / 60); if (h < 24) return `há ${h} h`;
+    return new Date(t).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); },
+  card(c, {big=false}={}){
+    const p = c.primary, u = U.safeUrl(p.url), when = new Date(p.published_at);
+    const also = c.others.slice(0, 4).map(o => { const ou = U.safeUrl(o.url); return ou ? `<a href="${U.esc(ou)}" target="_blank" rel="noopener noreferrer nofollow">${U.esc(o.publisher)}</a>` : U.esc(o.publisher); }).join(', ');
+    return `<article class="card news giro-card"><div class="row" style="justify-content:space-between;gap:6px"><span class="kicker" style="margin:0">${U.esc(GIRO_CATS[p.category])}</span>${badge(p.status)}</div>
+      <h3${big ? ' style="font-size:28px"' : ''}><a href="${U.esc(u)}" target="_blank" rel="noopener noreferrer nofollow">${U.esc(p.title)}</a></h3>
+      ${p.summary ? `<p class="sum">${U.esc(p.summary)}</p><span class="sumk">${p.summary_kind === 'ia' ? 'RESUMO AUTOMÁTICO (IA)' : 'RESUMO DA REDAÇÃO'}</span>` : ''}
+      <div class="src">Fonte: <b>${U.esc(p.publisher)}</b> · <time datetime="${U.esc(when.toISOString())}" title="${U.esc(when.toLocaleString('pt-BR'))}">${U.esc(this.ago(p.published_at))}</time>${c.featured ? ' · <b>Destaque</b>' : ''}</div>
+      ${also ? `<div class="also">Também em: ${also}${c.others.length > 4 ? ` e mais ${c.others.length - 4}` : ''}</div>` : ''}
+      <div class="row" style="margin-top:4px"><a class="btn sm" href="${U.esc(u)}" target="_blank" rel="noopener noreferrer nofollow">Ler na fonte</a>${Auth.isAdmin() ? `<button class="btn sm ghost" data-gmod="${U.esc(p.id)}">Moderar</button>` : ''}</div></article>`;
+  },
+  /** Pede ao robô uma busca agora. Visitantes: no máximo 1 a cada 5 min para o site todo; admin: sem espera. */
+  async trigger(){
+    if (Cloud.session) await Cloud.ensureFresh();
+    const h = {apikey:CLOUD_CFG.key, 'Content-Type':'application/json'};
+    if (Cloud.session && Auth.isAdmin()) h.Authorization = 'Bearer ' + Cloud.session.access_token;
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null, to = ctl && setTimeout(() => ctl.abort(), 60000);
+    let res; try { res = await fetch(CLOUD_CFG.url + this.FN, {method:'POST', headers:h, body:JSON.stringify({trigger:'visitante'}), signal:ctl ? ctl.signal : undefined, credentials:'omit', cache:'no-store', referrerPolicy:'no-referrer'}); }
+    catch(e) { throw new Error(e && e.name === 'AbortError' ? 'o robô demorou demais para responder' : 'sem conexão com o robô'); }
+    finally { to && clearTimeout(to); }
+    if (res.status === 404) throw new Error('o robô ainda não foi instalado no Supabase');
+    let data = null; try { const txt = await res.text(); data = txt ? JSON.parse(txt) : null; } catch(e) { data = null; }
+    if (!res.ok && !(data && data.ran)) throw new Error('o robô respondeu com erro (' + res.status + ')');
+    return data || {};
+  },
+  stamp(){ const r = this.lastRun; if (!r) return 'O robô ainda não fez nenhuma busca.';
+    return `Última busca ${this.ago(r.finished_at || r.started_at)} · ${r.sources_ok} fonte(s) lida(s)${r.sources_fail ? `, ${r.sources_fail} com falha` : ''}`; },
+  async refresh(btn, after){
+    const label = btn.innerHTML; btn.disabled = true; btn.textContent = 'Buscando novidades…';
+    try { const r = await this.trigger();
+      if (r.ran) UI.toast(r.items_new ? `${r.items_new} notícia(s) nova(s) no Giro.` : 'Busca concluída: nenhuma notícia nova desde a última vez.');
+      else if (r.reason === 'recente') UI.toast(`O Giro foi atualizado há pouco. Nova busca liberada em ${Math.max(1, Math.ceil((r.next_in_s||60)/60))} min.`, 'warn');
+    } catch(e) { UI.toast('Não foi possível buscar agora: ' + e.message + '. Mostrando o que já temos.', 'warn', 6000); }
+    try { await this.load(true); } catch(e) { this.error = e.message; }
+    btn.disabled = false; btn.innerHTML = label; after && after();
+  },
+  /** Atualização automática enquanto a tela estiver aberta (relê o banco a cada 5 min). */
+  watch(box, draw){ clearInterval(this.timer); this.timer = setInterval(async () => { if (!document.body.contains(box)) { clearInterval(this.timer); return; } try { await this.load(true); draw(); } catch(e) {} }, 5 * 60000); },
+  moderate(id, after){
+    const it = this.items.find(i => i.id === id); if (!it || !Auth.isAdmin()) return;
+    const m = UI.modal({title:'Moderar notícia', body:`<p class="small muted" style="margin-bottom:10px">${U.esc(it.publisher)} · ${U.esc(this.ago(it.published_at))}</p><h3 style="margin-bottom:12px">${U.esc(it.title)}</h3>
+      <div class="field"><label for="gm_c">Categoria</label><select class="in" id="gm_c">${Object.entries(GIRO_CATS).map(([k,t]) => `<option value="${k}" ${k===it.category?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="field"><label for="gm_s">Grau de confirmação</label><select class="in" id="gm_s">${['confirmado','apuracao','rumor'].map(k => `<option value="${k}" ${k===it.status?'selected':''}>${STATUS[k].txt}</option>`).join('')}</select></div>
+      <div class="field"><label for="gm_r">Resumo próprio (opcional, escrito por você, até 400 caracteres)</label><textarea class="in" id="gm_r" maxlength="400" placeholder="Não copie o texto da matéria: escreva com suas palavras.">${U.esc(it.summary && it.summary_kind === 'admin' ? it.summary : '')}</textarea></div>
+      <div class="field"><label class="row"><input type="checkbox" id="gm_f" ${it.featured?'checked':''}> Destacar na página inicial</label><label class="row"><input type="checkbox" id="gm_h" ${it.hidden?'checked':''}> Ocultar do site (notícia errada, fora do tema ou repetida)</label></div>`,
+      actions:[{label:'Cancelar', cls:'ghost'}, {label:'Salvar', cls:'red', onClick: async bg => {
+        const sum = U.$('#gm_r', bg).value.trim().slice(0, 400);
+        const patch = {category:U.$('#gm_c', bg).value, status:U.$('#gm_s', bg).value, featured:U.$('#gm_f', bg).checked, hidden:U.$('#gm_h', bg).checked, manual:true, summary:sum || (it.summary_kind === 'ia' ? it.summary : null), summary_kind:sum ? 'admin' : (it.summary_kind === 'ia' ? 'ia' : null)};
+        try { const r = await Cloud.req(`/rest/v1/news_items?id=eq.${encodeURIComponent(it.id)}`, {method:'PATCH', headers:{Prefer:'return=representation'}, body:patch});
+          if (!Array.isArray(r) || !r.length) throw new Error('sem permissão ou notícia não encontrada');
+          Object.assign(it, patch); UI.toast('Notícia atualizada.'); after && after(); }
+        catch(e) { UI.toast('Não foi possível salvar: ' + e.message, 'err', 6000); return false; } }}]});
+    return m;
   }
 };
 
@@ -2098,8 +2259,8 @@ const Admin = {
   CONTENT:['news','history','titles','presidents','players','seasons','matches','lineups','quiz','mysteries','careers','photos','videos','sources','curiosities']
 };
 Pages.admin = { title:'Painel administrativo', admin:true, render(v, param){
-  const tab = ['conteudo','dados','backup','usuarios'].includes(param) ? param : 'conteudo';
-  v.innerHTML = `${Cloud.on ? '<div class="note">Painel do administrador. As alterações são gravadas no banco online e aparecem para todos os visitantes. Faça backups com frequência.</div>' : '<div class="note red">Painel do administrador local. Alterações valem apenas neste navegador até a integração com o banco online. Faça backups com frequência.</div>'}<div class="tabs">${[['conteudo','Conteúdo'],['dados','Dados atuais'],['backup','Backup e importação'],['usuarios', Cloud.on ? 'Usuários' : 'Usuários locais']].map(([k,l]) => `<button class="${k===tab?'on':''}" data-t="${k}">${l}</button>`).join('')}</div><div id="ab"></div>`;
+  const tab = ['conteudo','dados','backup','usuarios'].concat(Cloud.on ? ['giro'] : []).includes(param) ? param : 'conteudo';
+  v.innerHTML = `${Cloud.on ? '<div class="note">Painel do administrador. As alterações são gravadas no banco online e aparecem para todos os visitantes. Faça backups com frequência.</div>' : '<div class="note red">Painel do administrador local. Alterações valem apenas neste navegador até a integração com o banco online. Faça backups com frequência.</div>'}<div class="tabs">${[['conteudo','Conteúdo'],['dados','Dados atuais'],['backup','Backup e importação'],['usuarios', Cloud.on ? 'Usuários' : 'Usuários locais']].concat(Cloud.on ? [['giro','Giro da Colina']] : []).map(([k,l]) => `<button class="${k===tab?'on':''}" data-t="${k}">${l}</button>`).join('')}</div><div id="ab"></div>`;
   U.$$('.tabs button', v).forEach(b => b.onclick = () => Router.go('admin', b.dataset.t));
   this[tab](U.$('#ab', v));
 },
@@ -2158,6 +2319,82 @@ Pages.admin = { title:'Painel administrativo', admin:true, render(v, param){
       pa.disabled = true; pa.textContent = 'Enviando…';
       try { const r = await Cloud.pushAll(false); UI.toast(`Pronto: ${r.sent} registro(s) enviados ao banco online.`); } catch(e) { Cloud.fail(e); }
       pa.disabled = false; pa.textContent = 'Enviar conteúdo para o banco online'; };
+  },
+  /** Giro da Colina: fontes do robô, busca manual, histórico e moderação. */
+  giro(box){
+    const KIND = {rss:'Feed RSS/Atom do próprio site', google:'Busca no Google Notícias (para sites sem feed)'};
+    const REL = {oficial:'Oficial do clube', imprensa:'Imprensa', blog:'Site/blog de torcedores', agregador:'Agregador'};
+    box.innerHTML = `<p class="lead" style="margin-bottom:12px">O robô lê as fontes <b>ativas</b> a cada 15 minutos (agendamento no Supabase) e guarda só título, veículo, horário e link de cada notícia. Aqui você cadastra fontes, liga e desliga cada uma e corrige notícias.</p>
+      <div class="row" style="margin-bottom:14px"><button class="btn red" id="grun">Buscar notícias agora</button><button class="btn" id="gadd">${ICO('plus')} Adicionar fonte</button><a class="btn ghost" href="#/noticias">Ver o Giro no site</a></div>
+      <h2 class="sec">Fontes</h2><div id="gsrc">${UI.loader('Carregando fontes…')}</div>
+      <h2 class="sec">Últimas buscas do robô</h2><div id="gruns"></div>
+      <h2 class="sec">Moderar notícias</h2><div class="filters"><input class="in" id="gmq" type="search" placeholder="Filtrar por título ou veículo"><label class="row small"><input type="checkbox" id="gmh"> Mostrar só as ocultas</label></div><div id="gmod"></div>`;
+    let sources = [], runs = [];
+    const relTxt = s => REL[s.reliability] || s.reliability;
+    const drawSrc = () => {
+      U.$('#gsrc', box).innerHTML = sources.length ? `<div class="tablewrap"><table><thead><tr><th>Ativa</th><th>Fonte</th><th>Tipo</th><th>Última leitura</th><th></th></tr></thead><tbody>${sources.map(s => `<tr>
+        <td><label class="row"><input type="checkbox" data-sact="${U.esc(s.id)}" ${s.active?'checked':''} aria-label="Ativar ${U.esc(s.name)}"></label></td>
+        <td class="wrap"><b>${U.esc(s.name)}</b><div class="small muted">${U.esc(relTxt(s))}${U.safeUrl(s.site_url) ? ' · ' + Pages.srcLink('site', s.site_url) : ''}</div></td>
+        <td class="small">${s.kind === 'google' ? 'Google Notícias' : 'RSS'}</td>
+        <td class="wrap small">${!s.last_fetch_at ? '<span class="muted">ainda não lida</span>' : s.last_ok ? `<span class="st ok">OK</span> ${s.last_count ?? 0} notícia(s) · ${U.esc(Giro.ago(s.last_fetch_at))}` : `<span class="st pend">Falhou</span> ${U.esc(s.last_error || '')} · ${U.esc(Giro.ago(s.last_fetch_at))}`}</td>
+        <td style="text-align:right"><button class="btn sm ghost" data-sedit="${U.esc(s.id)}">Editar</button> <button class="btn sm ghost" data-sdel="${U.esc(s.id)}">Excluir</button></td></tr>`).join('')}</tbody></table></div>` : UI.empty('Nenhuma fonte cadastrada', 'Rode o arquivo supabase/giro-da-colina.sql no Supabase ou use "Adicionar fonte".');
+      U.$$('[data-sact]', box).forEach(c => c.onchange = async () => { const s = sources.find(x => x.id === c.dataset.sact);
+        try { await saveSrc({active:c.checked}, s.id); s.active = c.checked; UI.toast(c.checked ? `${s.name} ativada.` : `${s.name} desativada: o robô para de lê-la.`); } catch(e) { c.checked = !c.checked; UI.toast('Não foi possível alterar: ' + e.message, 'err'); } });
+      U.$$('[data-sedit]', box).forEach(b => b.onclick = () => form(sources.find(x => x.id === b.dataset.sedit)));
+      U.$$('[data-sdel]', box).forEach(b => b.onclick = async () => { const s = sources.find(x => x.id === b.dataset.sdel);
+        if (!await UI.confirm(`Excluir a fonte ${s.name}? As notícias já reunidas continuam no Giro. Para só pausar, desmarque "Ativa".`, {ok:'Excluir fonte'})) return;
+        try { const r = await Cloud.req(`/rest/v1/news_sources?id=eq.${encodeURIComponent(s.id)}`, {method:'DELETE', headers:{Prefer:'return=representation'}}); if (!Array.isArray(r) || !r.length) throw new Error('sem permissão'); sources = sources.filter(x => x !== s); drawSrc(); UI.toast('Fonte excluída.'); }
+        catch(e) { UI.toast('Não foi possível excluir: ' + e.message, 'err'); } });
+    };
+    const saveSrc = async (patch, id) => {
+      const r = id ? await Cloud.req(`/rest/v1/news_sources?id=eq.${encodeURIComponent(id)}`, {method:'PATCH', headers:{Prefer:'return=representation'}, body:patch})
+                   : await Cloud.req('/rest/v1/news_sources', {method:'POST', headers:{Prefer:'return=representation'}, body:patch});
+      if (!Array.isArray(r) || !r.length) throw new Error('sem permissão ou fonte não encontrada'); return r[0];
+    };
+    const safeFeed = u => { const s = U.safeUrl(u); if (!s || !/^https:\/\//i.test(s)) return ''; try { const h = new URL(s).hostname; if (!h.includes('.') || /^[\d.]+$/.test(h) || /(^|\.)(localhost|local|internal)$/.test(h)) return ''; } catch(e) { return ''; } return s; };
+    const googleFeed = dom => 'https://news.google.com/rss/search?q=' + encodeURIComponent('Vasco site:' + dom) + '&hl=pt-BR&gl=BR&ceid=BR:pt-419';
+    const form = s => {
+      const cur = s || {id:'', name:'', site_url:'', feed_url:'', kind:'rss', reliability:'imprensa', active:true};
+      const m = UI.modal({title:s ? 'Editar fonte — ' + s.name : 'Adicionar fonte', body:`
+        <div class="field"><label for="sf_n">Nome do veículo *</label><input class="in" id="sf_n" maxlength="80" value="${U.esc(cur.name)}"></div>
+        ${s ? '' : `<div class="field"><label for="sf_i">Código interno *</label><input class="in" id="sf_i" maxlength="40" placeholder="ex.: lance, netvasco" value=""><span class="hint">Só letras minúsculas, números, - ou _. Não muda depois.</span></div>`}
+        <div class="field"><label for="sf_k">Como ler *</label><select class="in" id="sf_k">${Object.entries(KIND).map(([k,t]) => `<option value="${k}" ${cur.kind===k?'selected':''}>${t}</option>`).join('')}</select></div>
+        <div class="field" id="sf_dw"><label for="sf_d">Domínio do site (para montar a busca no Google Notícias)</label><input class="in" id="sf_d" placeholder="ex.: lance.com.br"><span class="hint">Preencha para gerar o endereço automaticamente. Busca: “Vasco site:domínio”.</span></div>
+        <div class="field"><label for="sf_f">Endereço do feed (https) *</label><input class="in" id="sf_f" value="${U.esc(cur.feed_url)}" placeholder="https://site.com.br/feed/"></div>
+        <div class="field"><label for="sf_s">Site do veículo</label><input class="in" id="sf_s" value="${U.esc(cur.site_url||'')}" placeholder="https://"></div>
+        <div class="field"><label for="sf_r">Tipo de fonte *</label><select class="in" id="sf_r">${Object.entries(REL).map(([k,t]) => `<option value="${k}" ${cur.reliability===k?'selected':''}>${t}</option>`).join('')}</select><span class="hint">“Oficial do clube” faz as notícias saírem como <b>confirmadas</b>. Use só para canais oficiais do Vasco.</span></div>
+        <div class="errmsg" id="sf_e" role="alert"></div>`,
+        actions:[{label:'Cancelar', cls:'ghost'}, {label:'Salvar fonte', cls:'red', onClick: async bg => {
+          const g = id => U.$(id, bg), err = g('#sf_e');
+          const kind = g('#sf_k').value, dom = g('#sf_d').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          if (kind === 'google' && dom) { if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(dom)) { err.textContent = 'Domínio inválido.'; return false; } g('#sf_f').value = googleFeed(dom); }
+          const out = {name:g('#sf_n').value.trim(), kind, reliability:g('#sf_r').value, feed_url:safeFeed(g('#sf_f').value.trim()), site_url:g('#sf_s').value.trim() ? safeFeed(g('#sf_s').value.trim()) : null};
+          if (out.name.length < 2) { err.textContent = 'Informe o nome do veículo.'; return false; }
+          if (!out.feed_url) { err.textContent = 'O endereço do feed precisa começar com https:// e apontar para um site público.'; return false; }
+          if (g('#sf_s').value.trim() && !out.site_url) { err.textContent = 'O site do veículo precisa começar com https://.'; return false; }
+          if (!s) { out.id = g('#sf_i').value.trim(); if (!/^[a-z0-9_-]{2,40}$/.test(out.id)) { err.textContent = 'Código interno inválido: use letras minúsculas, números, - ou _.'; return false; } if (sources.some(x => x.id === out.id)) { err.textContent = 'Já existe uma fonte com esse código.'; return false; } out.active = true; }
+          try { const row = await saveSrc(out, s && s.id); if (s) Object.assign(s, row); else sources.push(row); drawSrc(); UI.toast(s ? 'Fonte atualizada.' : 'Fonte adicionada. Ela será lida na próxima busca.'); }
+          catch(e) { err.textContent = 'Não foi possível salvar: ' + e.message; return false; } }}]});
+      const k = U.$('#sf_k', m.el), w = U.$('#sf_dw', m.el), sync = () => { w.hidden = k.value !== 'google'; };
+      k.onchange = sync; sync();
+    };
+    const drawRuns = () => { U.$('#gruns', box).innerHTML = runs.length ? `<div class="tablewrap"><table><thead><tr><th>Quando</th><th>Quem pediu</th><th>Fontes lidas</th><th>Com falha</th><th>Novas</th><th>Situação</th></tr></thead><tbody>${runs.map(r => `<tr><td>${U.esc(new Date(r.started_at).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'}))}</td><td>${U.esc({cron:'Agendamento', visitante:'Visitante', admin:'Administrador'}[r.trigger] || r.trigger)}</td><td>${r.sources_ok}</td><td>${r.sources_fail}</td><td><b>${r.items_new}</b></td><td class="wrap small">${r.error ? `<span class="st pend">Erro</span> ${U.esc(r.error)}` : r.finished_at ? '<span class="st ok">Concluída</span>' : '<span class="st part">Em andamento</span>'}</td></tr>`).join('')}</tbody></table></div>` : UI.empty('Nenhuma busca ainda', 'Use "Buscar notícias agora" ou aguarde o agendamento.'); };
+    const drawMod = () => {
+      const q = U.norm(U.$('#gmq', box).value), onlyHidden = U.$('#gmh', box).checked;
+      const list = Giro.items.filter(i => (!onlyHidden || i.hidden) && (!q || U.norm(i.title + ' ' + i.publisher).includes(q))).slice(0, 60);
+      U.$('#gmod', box).innerHTML = list.length ? `<div class="tablewrap"><table><thead><tr><th>Notícia</th><th>Categoria</th><th>Confirmação</th><th></th></tr></thead><tbody>${list.map(i => `<tr><td class="wrap"><b>${U.esc(i.title)}</b><div class="small muted">${U.esc(i.publisher)} · ${U.esc(Giro.ago(i.published_at))}${i.hidden ? ' · <b>oculta</b>' : ''}${i.featured ? ' · <b>destaque</b>' : ''}${i.manual ? ' · corrigida' : ''}</div></td><td class="small">${U.esc(GIRO_CATS[i.category])}</td><td>${badge(i.status)}</td><td style="text-align:right"><button class="btn sm ghost" data-gmod="${U.esc(i.id)}">Moderar</button></td></tr>`).join('')}</tbody></table></div>` : UI.empty('Nada para mostrar', 'Ajuste o filtro ou aguarde a próxima busca.');
+      U.$$('[data-gmod]', box).forEach(b => b.onclick = () => Giro.moderate(b.dataset.gmod, drawMod));
+    };
+    const loadAll = async () => {
+      try { [sources, runs] = await Promise.all([Cloud.req('/rest/v1/news_sources?select=*&order=name.asc'), Cloud.req('/rest/v1/news_runs?select=*&order=started_at.desc&limit=8')]); sources = sources || []; runs = runs || []; }
+      catch(e) { U.$('#gsrc', box).innerHTML = UI.empty('Não foi possível carregar as fontes', e.message + '. Confira se o arquivo supabase/giro-da-colina.sql já foi executado no Supabase.'); return; }
+      drawSrc(); drawRuns();
+      try { await Giro.load(true); } catch(e) {} drawMod();
+    };
+    U.$('#gadd', box).onclick = () => form(null);
+    U.$('#gmq', box).oninput = U.debounce(drawMod, 200); U.$('#gmh', box).onchange = drawMod;
+    U.$('#grun', box).onclick = () => Giro.refresh(U.$('#grun', box), loadAll);
+    loadAll();
   },
   usuarios(box){
     if (Cloud.on) {

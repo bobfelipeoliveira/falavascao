@@ -6,7 +6,18 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const assert = (c, m) => { if (!c) { console.log('FAIL:', m); process.exitCode = 1; } else console.log('ok  ', m); };
 
 /* ---------------- servidor Supabase simulado ---------------- */
-const S = { users:{}, profiles:{}, content:[], settings:[], admins:new Set(), confirm:true, calls:[], seq:0 };
+const S = { users:{}, profiles:{}, content:[], settings:[], admins:new Set(), confirm:true, calls:[], seq:0,
+  news:[], runs:[], sources:[{id:'netvasco', name:'NetVasco', site_url:'https://www.netvasco.com.br/', feed_url:'https://www.netvasco.com.br/news/rss.xml', kind:'rss', reliability:'imprensa', active:true, last_fetch_at:null}],
+  fnCalls:[], fnReply: admin => admin ? {ran:true, items_new:2, sources_ok:1, sources_fail:0} : {ran:false, reason:'recente', next_in_s:200} };
+const hoursAgo = h => new Date(Date.now() - h * 36e5).toISOString();
+S.news = [
+  {id:'n1', url:'https://ge.globo.com/vasco/a.ghtml', title:'Vasco acerta com atacante <img src=x onerror=alert(1)>', publisher:'ge', source_id:'ge', published_at:hoursAgo(1), category:'mercado', status:'apuracao', cluster_id:'c1', cluster_size:2, summary:null, summary_kind:null, featured:false, hidden:false, manual:false},
+  {id:'n2', url:'https://www.lance.com.br/vasco/b.html', title:'Atacante acerta com o Vasco', publisher:'LANCE!', source_id:'lance', published_at:hoursAgo(0.5), category:'mercado', status:'apuracao', cluster_id:'c1', cluster_size:2, summary:null, summary_kind:null, featured:false, hidden:false, manual:false},
+  {id:'n3', url:'https://www.netvasco.com.br/n/1/sub20', title:'Sub-20 do Vasco vence clássico', publisher:'NetVasco', source_id:'netvasco', published_at:hoursAgo(3), category:'base', status:'confirmado', cluster_id:'c3', cluster_size:1, summary:'Resumo escrito pela redação.', summary_kind:'admin', featured:false, hidden:false, manual:true},
+  {id:'n4', url:'javascript:alert(1)', title:'Link perigoso deve ser descartado', publisher:'X', source_id:'netvasco', published_at:hoursAgo(1), category:'profissional', status:'rumor', cluster_id:'c4', cluster_size:1, featured:false, hidden:false, manual:false},
+  {id:'n5', url:'https://exemplo.com/oculta', title:'Notícia oculta pelo admin', publisher:'Y', source_id:'netvasco', published_at:hoursAgo(1), category:'profissional', status:'rumor', cluster_id:'c5', cluster_size:1, featured:false, hidden:true, manual:true},
+];
+S.runs = [{started_at:hoursAgo(0.2), finished_at:hoursAgo(0.19), trigger:'cron', items_new:3, sources_ok:7, sources_fail:0, error:null}];
 const tok = id => `h.${id}.s`, idOf = h => { const m = /^Bearer h\.([\w-]+)\.s$/.exec(h || ''); return m && Object.values(S.users).some(u => u.id === m[1]) ? m[1] : null; };
 const reply = (status, body) => Promise.resolve({ ok: status >= 200 && status < 300, status, text: async () => body === undefined ? '' : JSON.stringify(body) });
 const deny = () => reply(401, {code:'42501', message:'permission denied'});
@@ -35,6 +46,15 @@ function fetchMock(url, opts = {}) {
   if (path === '/rest/v1/profiles' && method === 'GET') { if (!me) return deny(); const f = u.searchParams.get('user_id'); if (f) { const id = f.slice(3); return reply(200, (id === me || isAdmin) && S.profiles[id] ? [S.profiles[id]] : []); } return reply(200, isAdmin ? Object.values(S.profiles).map(p => ({login:p.login, display_name:p.display_name, created_at:p.created_at, points:p.progress.points})) : Object.values(S.profiles).filter(p => p.user_id === me)); }
   if (path === '/rest/v1/profiles' && method === 'POST') { if (!me) return deny(); if (S.profiles[me]) return reply(409, {code:'23505'}); if (Object.values(S.profiles).some(p => p.login.toLowerCase() === body.login.toLowerCase())) return reply(409, {code:'23505'}); if (!/^[a-zA-Z0-9_.]{3,20}$/.test(body.login)) return reply(400, {code:'23514'}); const row = {user_id:me, login:body.login, display_name:body.display_name, progress:body.progress, created_at:new Date().toISOString()}; S.profiles[me] = row; return reply(201, [row]); }
   if (path === '/rest/v1/profiles' && method === 'PATCH') { const id = u.searchParams.get('user_id').slice(3); if (id !== me || !S.profiles[id]) return reply(204); Object.assign(S.profiles[id], body); return reply(204); }
+  // ---- Giro da Colina ----
+  if (path === '/rest/v1/news_items' && method === 'GET') return reply(200, S.news.filter(n => isAdmin || !n.hidden).map(n => ({...n, news_sources: (S.sources.find(s => s.id === n.source_id) || null)})));
+  if (path === '/rest/v1/news_items' && method === 'PATCH') { if (!isAdmin) return reply(200, []); const id = u.searchParams.get('id').slice(3); const it = S.news.find(n => n.id === id); if (!it) return reply(200, []); Object.assign(it, body); return reply(200, [it]); }
+  if (path === '/rest/v1/news_runs' && method === 'GET') return reply(200, S.runs.slice(0, +(u.searchParams.get('limit') || 10)));
+  if (path === '/rest/v1/news_sources' && method === 'GET') return reply(200, S.sources);
+  if (path === '/rest/v1/news_sources' && method === 'POST') { if (!isAdmin) return deny(); S.sources.push({...body, last_fetch_at:null}); return reply(201, [body]); }
+  if (path === '/rest/v1/news_sources' && method === 'PATCH') { if (!isAdmin) return reply(200, []); const id = u.searchParams.get('id').slice(3); const s = S.sources.find(x => x.id === id); if (!s) return reply(200, []); Object.assign(s, body); return reply(200, [s]); }
+  if (path === '/rest/v1/news_sources' && method === 'DELETE') { if (!isAdmin) return reply(200, []); const id = u.searchParams.get('id').slice(3); const s = S.sources.find(x => x.id === id); S.sources = S.sources.filter(x => x !== s); return reply(200, s ? [s] : []); }
+  if (path === '/functions/v1/giro-da-colina') { S.fnCalls.push({admin: isAdmin, auth: !!h.Authorization}); return reply(200, S.fnReply(isAdmin)); }
   if (path === '/rest/v1/rpc/delete_my_account') { if (!me) return deny(); const email = Object.keys(S.users).find(k => S.users[k].id === me); delete S.users[email]; delete S.profiles[me]; S.admins.delete(me); return reply(204); }
   return reply(404, {message:'rota não simulada: ' + method + ' ' + path});
 }
@@ -96,18 +116,62 @@ const toasts = d => [...d.querySelectorAll('.toast')].map(t => t.textContent).jo
   assert(C.w.eval('Auth.isAdmin()') === true, 'admin reconhecido pela tabela admins do servidor');
   await C.go('#/admin/backup'); assert(!!C.$('#pushAll'), 'botão "Enviar conteúdo para o banco online" aparece para o admin');
   const r = await C.w.eval('Cloud.pushAll(false)'); assert(r.sent > 50 && S.content.length === r.sent && S.settings.length === 2, 'conteúdo inicial enviado ao banco: ' + r.sent + ' registros');
-  await C.go('#/noticias'); C.$('#addNews').click(); await sleep(10);
+  await C.go('#/noticias/redacao'); C.$('#addNews').click(); await sleep(10);
   const m = C.$('.modal-bg'); m.querySelector('#f_title').value = 'Manchete <img src=x onerror=alert(1)>'; m.querySelector('#f_source').value = 'Fonte'; m.querySelector('#f_date').value = '2026-11-07'; m.querySelector('#f_summary').value = 'Resumo próprio'; m.querySelector('#f_url').value = 'https://example.com/n';
   [...m.querySelectorAll('.modal-f .btn')].pop().click(); await sleep(60);
   const saved = S.content.find(x => x.collection === 'news' && String(x.data.title).startsWith('Manchete'));
   assert(!!saved, 'notícia criada pelo admin é gravada no banco online');
   // 7) Outro visitante vê a notícia (vinda do banco) e ela aparece escapada
-  const D = open('#/noticias'); await sleep(200);
+  const D = open('#/noticias/redacao'); await sleep(200);
   assert(D.txt().includes('Manchete <img') && !D.$('#view').innerHTML.includes('<img src="x"') && !D.$('#view img[src="x"]'), 'visitante vê a notícia do banco, com HTML escapado (anti-XSS)');
   // 8) Excluir pelo admin remove do banco
   await C.w.eval(`Store.remove('news', ${JSON.stringify(saved.id)})`); await sleep(40);
   assert(!S.content.some(x => x.id === saved.id), 'exclusão do admin remove do banco');
   await C.go('#/admin/usuarios'); await sleep(40); assert(C.txt().includes('ana') && C.txt().includes(biaLogin) && !C.txt().includes('@ex.com'), 'admin vê a lista de usuários sem os e-mails');
+
+  // ---- Giro da Colina (site) ----
+  const G = open('#/noticias'); await sleep(250);
+  assert(G.txt().includes('Giro da Colina') && !!G.$('[data-nt="redacao"]'), 'Notícias abre no Giro da Colina, com aba da redação');
+  const gcards = G.$$('#glist .giro-card');
+  assert(gcards.length === 2, 'mesma notícia em 2 veículos vira 1 cartão; link perigoso e oculta ficam fora (' + gcards.length + ' cartões)');
+  assert(G.$('#glist').textContent.includes('Também em: LANCE!') || G.$('#glist').textContent.includes('Também em: ge'), 'cartão mostra "Também em" com o outro veículo');
+  assert(!G.$('#view').querySelector('img[src="x"]') && G.$('#view').innerHTML.includes('&lt;img'), 'título da fonte aparece escapado (anti-XSS)');
+  assert(!G.$('#view').innerHTML.includes('javascript:'), 'nenhum link javascript: na página');
+  assert(G.$$('#glist a[target="_blank"]').every(a => /noopener/.test(a.rel) && /^https:/.test(a.href)), 'links da fonte abrem em nova aba com noopener');
+  assert(G.txt().includes('Apuração jornalística') && G.txt().includes('Confirmado'), 'grau de confirmação exibido');
+  assert(G.txt().includes('Resumo escrito pela redação.') && G.txt().includes('RESUMO DA REDAÇÃO'), 'resumo próprio aparece identificado');
+  assert(G.$('#gstamp').textContent.includes('Última busca') && G.$('#gstamp').textContent.includes('7 fonte'), 'mostra quando o robô buscou por último');
+  G.$$('#gcats .chip').find(c => c.dataset.c === 'base').click(); await sleep(20);
+  assert(G.$$('#glist .giro-card').length === 1 && G.$('#glist').textContent.includes('Sub-20'), 'filtro por categoria');
+  G.$('#gst').value = 'rumor'; G.$('#gst').onchange({target:G.$('#gst')}); await sleep(20);
+  assert(G.$$('#glist .giro-card').length === 0, 'filtro por grau de confirmação');
+  G.$('#gref').click(); await sleep(150);
+  assert(S.fnCalls.length === 1 && !S.fnCalls[0].auth && /atualizado há pouco/.test(toasts(G.d)), 'botão Atualizar chama o robô como visitante e respeita o intervalo');
+  assert(!G.$('[data-gmod]'), 'visitante não vê botão de moderar');
+  const H = open('#/inicio'); await sleep(250);
+  assert(H.$('#homeNews').textContent.includes('Giro da Colina') && H.$$('#homeNews .giro-card').length === 2, 'página inicial mostra os destaques do Giro');
+  // admin: fontes, busca forçada e moderação
+  await C.go('#/admin/giro'); await sleep(120);
+  assert(C.txt().includes('NetVasco') && C.txt().includes('ainda não lida'), 'admin vê as fontes cadastradas');
+  C.$('[data-sact="netvasco"]').checked = false; C.$('[data-sact="netvasco"]').onchange(); await sleep(30);
+  assert(S.sources.find(s => s.id === 'netvasco').active === false, 'admin desativa uma fonte');
+  C.$('#gadd').click(); await sleep(10);
+  let mm = C.$('.modal-bg'); mm.querySelector('#sf_n').value = 'ESPN'; mm.querySelector('#sf_i').value = 'espn'; mm.querySelector('#sf_k').value = 'google'; mm.querySelector('#sf_k').onchange(); mm.querySelector('#sf_d').value = 'espn.com.br'; mm.querySelector('#sf_r').value = 'imprensa';
+  [...mm.querySelectorAll('.modal-f .btn')].pop().click(); await sleep(40);
+  const espn = S.sources.find(s => s.id === 'espn');
+  assert(espn && espn.kind === 'google' && espn.feed_url.startsWith('https://news.google.com/rss/search?q=Vasco%20site%3Aespn.com.br'), 'admin adiciona fonte sem feed pela busca do Google Notícias');
+  C.$('#gadd').click(); await sleep(10);
+  mm = C.$('.modal-bg'); mm.querySelector('#sf_n').value = 'Interna'; mm.querySelector('#sf_i').value = 'interna'; mm.querySelector('#sf_f').value = 'https://localhost/feed';
+  [...mm.querySelectorAll('.modal-f .btn')].pop().click(); await sleep(30);
+  assert(!S.sources.some(s => s.id === 'interna') && mm.querySelector('#sf_e').textContent.includes('https://'), 'endereço interno é recusado no cadastro (SSRF)');
+  mm.querySelector('[data-x]').click();
+  C.$('#grun').click(); await sleep(80);
+  assert(S.fnCalls.length === 2 && S.fnCalls[1].admin, 'admin força a busca (envia o próprio login ao robô)');
+  const modBtn = C.$$('[data-gmod]').find(b => b.dataset.gmod === 'n1'); modBtn.click(); await sleep(10);
+  mm = C.$('.modal-bg'); mm.querySelector('#gm_s').value = 'confirmado'; mm.querySelector('#gm_f').checked = true; mm.querySelector('#gm_r').value = 'Meu resumo próprio';
+  [...mm.querySelectorAll('.modal-f .btn')].pop().click(); await sleep(40);
+  const n1 = S.news.find(n => n.id === 'n1');
+  assert(n1.status === 'confirmado' && n1.featured && n1.manual && n1.summary === 'Meu resumo próprio' && n1.summary_kind === 'admin', 'admin corrige confirmação, destaca e escreve resumo próprio');
 
   // 9) Link de recuperação de senha vindo por e-mail
   const E = open('#access_token=' + tok(anaId) + '&refresh_token=rt_' + anaId + '_refresh' + '&expires_in=3600&type=recovery'); await sleep(200);
@@ -124,8 +188,8 @@ const toasts = d => [...d.querySelectorAll('.toast')].map(t => t.textContent).jo
 
   // 11) Sem internet: o site abre com a cópia guardada
   const off = () => Promise.reject(new TypeError('Failed to fetch'));
-  const G = new JSDOM(html, {runScripts:'dangerously', url:'https://bob.github.io/falavascao/#/inicio', pretendToBeVisual:true, beforeParse(w){ w.fetch = off; w.scrollTo = () => {}; w.localStorage.setItem('falavascao:skinSeen','1'); w.console.error = (...a) => errors.push(a.join(' ')); w.console.warn = () => {}; }});
-  await sleep(200); assert(G.window.document.querySelector('#view').textContent.includes('Vasco x Palmeiras'), 'sem internet: site abre normalmente com o conteúdo local');
+  const OFF = new JSDOM(html, {runScripts:'dangerously', url:'https://bob.github.io/falavascao/#/inicio', pretendToBeVisual:true, beforeParse(w){ w.fetch = off; w.scrollTo = () => {}; w.localStorage.setItem('falavascao:skinSeen','1'); w.console.error = (...a) => errors.push(a.join(' ')); w.console.warn = () => {}; }});
+  await sleep(200); assert(OFF.window.document.querySelector('#view').textContent.includes('Vasco x Palmeiras'), 'sem internet: site abre normalmente com o conteúdo local');
 
   console.log('errors', errors.filter(e => !/Not implemented|Could not load/.test(e)).slice(0, 10));
   process.exit();
